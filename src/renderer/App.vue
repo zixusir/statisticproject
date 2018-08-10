@@ -8,19 +8,19 @@
         </el-radio-group>
         <el-menu-item index="1">
             <i class="el-icon-location"></i>
-            <span slot="title">新建统计表</span>     
+            <span slot="title">新表</span>     
         </el-menu-item>
         <el-menu-item index="2">
           <i class="el-icon-menu"></i>
-          <span slot="title">填写统计表</span>
+          <span slot="title">填表</span>
         </el-menu-item>
         <el-menu-item index="3" >
           <i class="el-icon-document"></i>
-          <span slot="title">导航三</span>
+          <span slot="title">制表导出</span>
         </el-menu-item>
         <el-menu-item index="4">
           <i class="el-icon-setting"></i>
-          <span slot="title">导航四</span>
+          <span slot="title">发起统计</span>
         </el-menu-item>
       </el-menu>
     </div>

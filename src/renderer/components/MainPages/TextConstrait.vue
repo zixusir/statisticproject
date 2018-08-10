@@ -48,7 +48,7 @@ export default {
     }
   },
   props: [
-    'dialogItem'
+    'item'
   ]
 }
 </script>

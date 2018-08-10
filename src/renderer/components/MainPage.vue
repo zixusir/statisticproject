@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-container>
+    <el-container style="height: 100%">
       <el-header class="header">
         <el-row :gutter="20">
           <el-col :span="22"><p>依次增加统计项目</p></el-col>
@@ -9,16 +9,28 @@
       </el-header>
       <el-main>
         <el-container v-for="item in items" :key="item.id" class="item">
-          <el-input v-model="item.itemName" placeholder="请输入内容" class="itemName"></el-input>
-          <div v-if="item.type === 'text'">
-            <text-constrait ref="textCt" v-bind="dialogItem"></text-constrait>
-          </div>
-          <div v-if="item.type === 'num'">显示数字的约束选项</div>
-          <div v-if="item.type === 'date'">显示日期的约束选项</div>
-          <div v-if="item.type === 'time'">显示时间的约束选项</div>
-          <div v-if="item.type === 'email'">显示邮件的约束选项</div>
-          <div v-if="item.type === 'pic'">显示图片的约束选项</div>
-          <i class="el-icon-delete" v-on:click="deleteThis(item)"></i>
+          <el-row style="width: 100%">
+            <el-col :span="6">
+              <el-input v-model="item.itemName" placeholder="请输入内容" class="itemName"></el-input>
+            </el-col>
+            <el-col :span="14">
+              <div v-if="item.type === 'text'">
+                <text-constrait ref="textCt" v-bind="item"></text-constrait>
+              </div>
+              <div v-if="item.type === 'num'">
+                <num-constrait ref="numCt" v-bind="item"></num-constrait>
+              </div>
+              <div v-if="item.type === 'date'"></div>
+              <div v-if="item.type === 'time'"></div>
+              <div v-if="item.type === 'email'"></div>
+              <div v-if="item.type === 'pic'">
+                <pic-constrait ref="picCt" v-bind="item"></pic-constrait>
+              </div>
+            </el-col>
+            <el-col :span="2">
+              <i class="el-icon-delete" v-on:click="deleteThis(item)"></i>
+            </el-col>
+          </el-row>
         </el-container>
         <el-container class="center mainContent">
           <div v-on:click="toggleShow()">
@@ -45,6 +57,8 @@
 // import Xlsx from 'xlsx'
 // import Vue from 'vue'
 import textConstrait from '@/components/MainPages/TextConstrait'
+import numConstrait from '@/components/MainPages/NumConstrait'
+import picConstrait from '@/components/MainPages/PicConstrait'
 export default {
   data () {
     return {
@@ -55,7 +69,11 @@ export default {
       dialogItem: null
     }
   },
-  components: { textConstrait },
+  components: {
+    textConstrait,
+    numConstrait,
+    picConstrait
+  },
   created () {
   },
   methods: {
@@ -132,7 +150,11 @@ export default {
         id: this.items.length + 1,
         type: 'pic',
         itemName: 'defaultPic',
-        constrait: '无约束'
+        constrait: {
+          width: 100,
+          height: 300,
+          size: 2
+        }
       }
       this.items.push(pic)
     },
