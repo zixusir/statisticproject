@@ -1,7 +1,7 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
-
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import * as DataBase from '../database/index'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -30,6 +30,11 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+  /**
+   * Initial database
+   */
+  DataBase.init()
+  // console.log('english?')
 }
 
 app.on('ready', createWindow)
@@ -46,6 +51,24 @@ app.on('activate', () => {
   }
 })
 
+// ipcMain
+const fileDialog = dialog
+const ipc = ipcMain
+ipc.on('open-file-dialog', (e) => {
+  console.log('开始选择文件')
+  let startPath = ''
+  fileDialog.showOpenDialog({
+    title: '选择文件',
+    properties: ['openFile'],
+    defaultPath: startPath,
+    buttonLabel: 'select...'
+  }, (files) => {
+    if (files) {
+      e.sender.send('selectedItems', files)
+    }
+  })
+  console.log(e)
+})
 /**
  * Auto Updater
  *

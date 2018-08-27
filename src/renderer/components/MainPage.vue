@@ -1,61 +1,63 @@
 <template>
-  <div>
-    <el-container style="height: 100%">
-      <el-header class="header">
-        <el-row :gutter="20">
-          <el-col :span="22"><p>依次增加统计项目</p></el-col>
-          <el-col :span="2"><i class="el-icon-check"></i></el-col>
-        </el-row>
-      </el-header>
-      <el-main>
-        <el-container v-for="item in items" :key="item.id" class="item">
-          <el-row style="width: 100%">
-            <el-col :span="6">
-              <el-input v-model="item.itemName" placeholder="请输入内容" class="itemName"></el-input>
-            </el-col>
-            <el-col :span="14">
-              <div v-if="item.type === 'text'">
-                <text-constrait ref="textCt" v-bind="item"></text-constrait>
-              </div>
-              <div v-if="item.type === 'num'">
-                <num-constrait ref="numCt" v-bind="item"></num-constrait>
-              </div>
-              <div v-if="item.type === 'date'"></div>
-              <div v-if="item.type === 'time'"></div>
-              <div v-if="item.type === 'email'"></div>
-              <div v-if="item.type === 'pic'">
-                <pic-constrait ref="picCt" v-bind="item"></pic-constrait>
-              </div>
-            </el-col>
-            <el-col :span="2">
-              <i class="el-icon-delete" v-on:click="deleteThis(item)"></i>
-            </el-col>
-          </el-row>
-        </el-container>
-        <el-container class="center mainContent">
-          <div v-on:click="toggleShow()">
-            <div class="el-icon-circle-plus-outline"></div>
-            <div class="newitem" v-show="showed">
-              <el-row>
-                <el-button v-on:click="addText()">文本</el-button>
-                <el-button type="info" v-on:click="addNumber()">数字</el-button>
-                <el-button type="primary" v-on:click="addDate()">日期</el-button>
-                <el-button type="success" v-on:click="addTime()">时间</el-button>
-                <el-button type="warning" v-on:click="addEmail()">邮箱</el-button>
-                <el-button type="danger" v-on:click="addLongText()">长文本</el-button>
-                <el-button type="danger" v-on:click="addPic()">图片</el-button>
-              </el-row>
+  <el-container class="mainContainer">
+    <el-header class="header">
+      <el-row :gutter="20">
+        <el-col :span="22"><p>依次增加统计项目</p></el-col>
+        <el-col :span="2"><i class="el-icon-check" v-on:click="save()"></i></el-col>
+      </el-row>
+    </el-header>
+    <el-main>
+      <el-container v-for="item in items" :key="item.id" class="item">
+        <el-row style="width: 100%">
+          <el-col :span="6">
+            <el-input v-model="item.itemName" placeholder="请输入内容" class="itemName"></el-input>
+          </el-col>
+          <el-col :span="14">
+            <div v-if="item.type === 'text'">
+              <text-constrait ref="textCt" v-bind="item"></text-constrait>
             </div>
+            <div v-if="item.type === 'num'">
+              <num-constrait ref="numCt" v-bind="item"></num-constrait>
+            </div>
+            <div v-if="item.type === 'date'"> </div>
+            <div v-if="item.type === 'time'"> </div>
+            <div v-if="item.type === 'email'"> </div>
+            <div v-if="item.type === 'longtext'"> </div>
+            <div v-if="item.type === 'pic'">
+              <pic-constrait ref="picCt" v-bind="item"></pic-constrait>
+            </div>
+          </el-col>
+          <el-col :span="2">
+            <i class="el-icon-delete" v-on:click="deleteThis(item)"></i>
+          </el-col>
+        </el-row>
+      </el-container>
+    </el-main>
+    <el-footer style="height: initial; padding: 0;">
+      <el-container class="center mainContent">
+        <div>
+          <div class="el-icon-circle-plus-outline"></div>
+          <div class="newitem">
+            <el-row>
+              <el-button v-on:click="addText()">文本</el-button>
+              <el-button type="info" v-on:click="addNumber()">数字</el-button>
+              <el-button type="primary" v-on:click="addDate()">日期</el-button>
+              <el-button type="success" v-on:click="addTime()">时间</el-button>
+              <el-button type="warning" v-on:click="addEmail()">邮箱</el-button>
+              <el-button type="danger" v-on:click="addLongText()">长文本</el-button>
+              <el-button type="danger" v-on:click="addPic()">图片</el-button>
+            </el-row>
           </div>
-        </el-container>
-      </el-main>
-    </el-container>
-  </div>
+        </div>
+      </el-container>
+    </el-footer>
+  </el-container>
 </template>
 
 <script>
-// import Xlsx from 'xlsx'
-// import Vue from 'vue'
+import fs from 'fs'
+import path from 'path'
+// import JSON from 'JSON'
 import textConstrait from '@/components/MainPages/TextConstrait'
 import numConstrait from '@/components/MainPages/NumConstrait'
 import picConstrait from '@/components/MainPages/PicConstrait'
@@ -64,7 +66,6 @@ export default {
     return {
       isCollapse: true,
       items: [],
-      showed: false,
       dialogVisible: false,
       dialogItem: null
     }
@@ -77,15 +78,12 @@ export default {
   created () {
   },
   methods: {
-    toggleShow () {
-      this.showed = !this.showed
-    },
     addText () {
       console.log('点击事件触发')
       let text = {
         id: this.items.length + 1,
         type: 'text',
-        itemName: 'defaultName',
+        itemName: '文本',
         constrait: {
           min: 0,
           max: 150,
@@ -100,7 +98,7 @@ export default {
       let number = {
         id: this.items.length + 1,
         type: 'num',
-        itemName: 'defaultNumber',
+        itemName: '数字',
         constrait: {
           length: 1,
           min: 0,
@@ -113,7 +111,7 @@ export default {
       let date = {
         id: this.items.length + 1,
         type: 'date',
-        itemName: 'defaultDate',
+        itemName: '日期',
         constrait: '无约束'
       }
       this.items.push(date)
@@ -122,7 +120,7 @@ export default {
       let time = {
         id: this.items.length + 1,
         type: 'time',
-        itemName: 'defaultTime',
+        itemName: '时间',
         constrait: '无约束'
       }
       this.items.push(time)
@@ -130,8 +128,8 @@ export default {
     addEmail () {
       let email = {
         id: this.items.length + 1,
-        tyep: 'email',
-        itemName: 'defaultEmail',
+        type: 'email',
+        itemName: '邮箱',
         constrait: '无约束'
       }
       this.items.push(email)
@@ -140,7 +138,7 @@ export default {
       let longText = {
         id: this.items.length + 1,
         type: 'longtext',
-        itemName: 'defaultLongTxt',
+        itemName: '多行文本',
         constrait: '无约束'
       }
       this.items.push(longText)
@@ -149,7 +147,7 @@ export default {
       let pic = {
         id: this.items.length + 1,
         type: 'pic',
-        itemName: 'defaultPic',
+        itemName: '图片',
         constrait: {
           width: 100,
           height: 300,
@@ -205,6 +203,28 @@ export default {
         title: '错误',
         message: h('i', {style: 'color: teal'}, str)
       })
+    },
+    save () {
+      console.log('保存文件')
+      const h = this.$createElement
+      this.$notify({
+        title: '提示',
+        message: h('i', {style: 'color: teal'}, '正在保存')
+      })
+      let filePath = path.join(__dirname, 'statisticData.sta')
+      fs.writeFile(filePath, JSON.stringify(this.items), (err) => {
+        if (err) {
+          this.$notify({
+            title: '错误',
+            message: h('i', {style: 'color: teal'}, '文件保存错误')
+          })
+        } else {
+          this.$notify({
+            title: '成功',
+            message: h('i', {style: 'color: teal'}, '文件保存成功在：' + filePath)
+          })
+        }
+      })
     }
   }
 }
@@ -241,8 +261,11 @@ export default {
    margin: 12px;
  }
  .newitem{
-   background-color: #CCCCCC;
+   background-color: #B3C0D1;
    padding: 10px 0;
+ }
+ .mainContainer {
+   max-height: 100vh;
  }
  .item{
    margin-bottom: 7px;

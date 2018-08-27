@@ -9,7 +9,7 @@
     <el-row>
       <el-col :span="12"><p>最大值</p></el-col>
       <el-col :span="12">
-        <el-input-number v-model="max" :min="1" :max="150" label="用于限制用户输入文本的最大值"></el-input-number>
+        <el-input-number v-model="max" :min="1" :max="1000000" label="用于限制用户输入文本的最大值"></el-input-number>
       </el-col>
     </el-row>
     <el-row>
@@ -21,7 +21,7 @@
           inactive-color="#ff4949">
         </el-switch>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="12">
         <el-input-number v-if="constant" v-model="constLength" :min="1" :max="150" label="数字的固定长度"></el-input-number>
       </el-col>
     </el-row>
@@ -33,7 +33,7 @@ export default {
   data () {
     return {
       min: 0,
-      max: 10000000,
+      max: 100,
       constant: false,
       constLength: 10
     }

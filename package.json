@@ -1,9 +1,9 @@
 {
   "name": "statistic",
-  "version": "0.0.0",
-  "author": "",
+  "version": "1.0.0",
+  "author": "zixu_sir",
   "description": "An electron-vue project",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -55,8 +55,10 @@
   "dependencies": {
     "axios": "^0.16.1",
     "bootstrap-table": "^1.12.1",
+    "electron-rebuild": "^1.8.2",
     "element-ui": "^2.4.5",
     "jquery": "^3.3.1",
+    "nedb": "^1.8.0",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vue-router": "^2.5.3",
