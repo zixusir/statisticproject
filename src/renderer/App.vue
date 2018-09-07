@@ -9,23 +9,23 @@
         <el-menu-item index="1" v-on:click="folder()">
           <img src="@/assets/menu.png" style="width: 18px; height: 18px; padding-left: 4px;">
         </el-menu-item>
-        <router-link :to="{name: 'mainpage'}">
-          <el-menu-item index="1">
+        <router-link :to="{name: 'editpage'}">
+          <el-menu-item index="2">
             <i class="el-icon-document"></i>
-            <span slot="title">新表</span>
+            <span slot="title">编辑表</span>
           </el-menu-item>
         </router-link>
         <router-link :to="{name: 'fillpage'}">
-          <el-menu-item index="2">           
+          <el-menu-item index="3">           
             <i class="el-icon-edit"></i>
             <span slot="title">填表</span>
           </el-menu-item>
         </router-link>
-        <el-menu-item index="3" >
+        <el-menu-item index="4" >
           <i class="el-icon-printer"></i>
           <span slot="title">制表导出</span>
         </el-menu-item>
-        <el-menu-item index="4">
+        <el-menu-item index="5">
           <i class="el-icon-upload"></i>
           <span slot="title">发起统计</span>
         </el-menu-item>

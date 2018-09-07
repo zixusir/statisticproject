@@ -6,7 +6,7 @@
           <p style="font-size: 20px; padding: 0 20px;">填表</p>
         </el-col>
         <el-col :span="2">
-          <i class="el-icon-check"></i>
+          <i class="el-icon-check" v-on:click="formSubmit()"></i>
         </el-col>
       </el-row>
     </el-header>
@@ -65,7 +65,6 @@ import fs from 'fs'
 import Path from 'path'
 import Vue from 'vue'
 import electron from 'electron'
-// let ipc = electron.ipcRenderer
 let tempPath = ''
 console.log(tempPath)
 export default {
@@ -75,7 +74,7 @@ export default {
     }
   },
   created: function () {
-    let filePath = Path.join(__dirname, 'statisticData.sta')
+    let filePath = Path.join('./', 'statisticData.sta')
     fs.readFile(filePath, 'utf-8', (err, data) => {
       if (err) {
         this.notice('error', '读取文件失败')
@@ -112,7 +111,6 @@ export default {
       let ipc = electron.ipcRenderer
       let _path = Path
       let _this = this
-      // tempPath = item
       console.log(tempPath)
       ipc.send('open-file-dialog')
       ipc.on('selectedItems', (e, p) => {
@@ -129,6 +127,12 @@ export default {
           Vue.set(_this.items, _this.items.indexOf(item), item)
         })
       })
+    },
+    formSubmit () {
+      console.log('提交')
+      // 渲染进程操作
+      let ipc = electron.ipcRenderer
+      ipc.send('insert-database', this.items) // 将需要保存的数据以参数的形式发送个主进程
     }
   }
 }
@@ -137,9 +141,6 @@ export default {
 <style>
   .el-row {
     margin-bottom: 20px;
-    /* &:last-child {
-      margin-bottom: 0;
-    } */
   }
   .el-col {
     border-radius: 4px;

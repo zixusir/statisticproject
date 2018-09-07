@@ -2,10 +2,11 @@
   <el-container class="mainContainer">
     <el-header class="header">
       <el-row :gutter="20">
-        <el-col :span="22"><p>依次增加统计项目</p></el-col>
+        <el-col :span="22"><p>修改统计项目</p></el-col>
         <el-col :span="2"><i class="el-icon-check" v-on:click="save()"></i></el-col>
       </el-row>
     </el-header>
+
     <el-main>
       <el-container v-for="item in items" :key="item.id" class="item">
         <el-row style="width: 100%">
@@ -29,10 +30,38 @@
           </el-col>
           <el-col :span="2">
             <i class="el-icon-delete" v-on:click="deleteThis(item)"></i>
+            <i class="el-icon-caret-top" v-on:click="itemUp(item)"></i>
+            <i class="el-icon-caret-bottom" v-on:click="itemDown(item)"></i>
           </el-col>
         </el-row>
       </el-container>
+      <el-dialog
+        title="选择文件"
+        :visible.sync="fileChooseDialog"
+        :show-close=false
+        :close-on-press-escape=false
+        width="50%">
+        <span>
+          <div >
+            <el-button type="primary" v-on:click="newFormat()">新建一个表</el-button>
+            <el-button type="primary" v-on:click="chooseFormat()">修改现有表</el-button>
+          </div>
+        </span>
+      </el-dialog>
+
+      <el-dialog 
+        title="保存文件名"
+        :visible.sync="saveDialog"
+        width="50%">
+        <span>
+          <div>
+            <el-input v-model="formatName" width="50%"></el-input>
+            <el-button type="primary" v-on:click="confirmSave()">确认保存</el-button>
+          </div> 
+        </span>
+      </el-dialog>
     </el-main>
+
     <el-footer style="height: initial; padding: 0;">
       <el-container class="center mainContent">
         <div>
@@ -55,19 +84,25 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import fs from 'fs'
 import path from 'path'
-// import JSON from 'JSON'
-import textConstrait from '@/components/MainPages/TextConstrait'
-import numConstrait from '@/components/MainPages/NumConstrait'
-import picConstrait from '@/components/MainPages/PicConstrait'
+import Electron from 'electron'
+import textConstrait from '@/components/EditPages/TextConstrait'
+import numConstrait from '@/components/EditPages/NumConstrait'
+import picConstrait from '@/components/EditPages/PicConstrait'
+import Global from '@/components/Global'
 export default {
   data () {
     return {
       isCollapse: true,
       items: [],
       dialogVisible: false,
-      dialogItem: null
+      dialogItem: null,
+      fileChooseDialog: false,
+      formatFile: '',
+      saveDialog: false,
+      formatName: ''
     }
   },
   components: {
@@ -76,6 +111,12 @@ export default {
     picConstrait
   },
   created () {
+    if (this.formatFile === '') this.fileChooseDialog = true
+  },
+  computed: {
+    currentFile: function () {
+      return Global.state.currentFile
+    }
   },
   methods: {
     addText () {
@@ -204,27 +245,113 @@ export default {
         message: h('i', {style: 'color: teal'}, str)
       })
     },
+    /*
+    * save() 保存
+    */
     save () {
-      console.log('保存文件')
-      const h = this.$createElement
-      this.$notify({
-        title: '提示',
-        message: h('i', {style: 'color: teal'}, '正在保存')
+      this.saveDialog = true
+    },
+    /*
+    * confirmSave() 确认保存
+    */
+    confirmSave () {
+      let ipc = Electron.ipcRenderer
+      if (this.formatName === '') {
+        this.$message({message: '没有定义文件名', type: 'warning'})
+      } else {
+        console.log('保存文件')
+        const h = this.$createElement
+        this.$notify({
+          title: '提示',
+          message: h('i', {style: 'color: teal'}, '正在保存')
+        })
+        let filePath = path.join('./', this.formatName + '.sta')
+        fs.writeFile(filePath, JSON.stringify(this.items), (err) => {
+          if (err) {
+            this.$notify({
+              title: '错误',
+              duration: 1500,
+              message: h('i', {style: 'color: teal'}, '文件保存错误')
+            })
+          } else {
+            ipc.send('editpage-newdatabase', this.formatName)
+            this.$notify({
+              title: '成功',
+              duration: 1500,
+              message: h('i', {style: 'color: teal'}, '文件保存成功在：' + filePath)
+            })
+          }
+        })
+      }
+    },
+    /*
+    * itemUp() 项目前移
+    */
+    itemUp (item) {
+      let index = this.items.indexOf(item)
+      if (index > 0) {
+        let item1 = this.items[index - 1]
+        let item2 = this.items[index]
+        let id = item2.id
+        item2.id = item1.id
+        item1.id = id
+        Vue.set(this.items, index - 1, item2)
+        Vue.set(this.items, index, item1)
+      }
+    },
+    /*
+    * itemDown() 项目下移
+    */
+    itemDown (item) {
+      let index = this.items.indexOf(item)
+      if (index < this.items.length - 1) {
+        let item1 = this.items[index + 1]
+        let item2 = this.items[index]
+        let id = item2.id
+        item2.id = item1.id
+        item1.id = id
+        Vue.set(this.items, index + 1, item2)
+        Vue.set(this.items, index, item1)
+      }
+    },
+    /*
+    * newFormat() 新建一个格式表
+    */
+    newFormat () {
+      this.items = []
+      this.fileChooseDialog = false
+    },
+    /*
+    * chooseFormat()更改格式文件
+    */
+    chooseFormat () {
+      let G = Global.state
+      console.log(G)
+      let ipc = Electron.ipcRenderer
+      ipc.send('editpage-chooseformat')
+      ipc.on('editpage-getformat', (e, d) => {
+        console.log(Global)
+        this.formatFile = d[0]
+        // G.state.currentFile = this.formatFile
+        this.setFormatView()
       })
-      let filePath = path.join(__dirname, 'statisticData.sta')
-      fs.writeFile(filePath, JSON.stringify(this.items), (err) => {
-        if (err) {
-          this.$notify({
-            title: '错误',
-            message: h('i', {style: 'color: teal'}, '文件保存错误')
-          })
-        } else {
-          this.$notify({
-            title: '成功',
-            message: h('i', {style: 'color: teal'}, '文件保存成功在：' + filePath)
-          })
-        }
-      })
+    },
+    /*
+    * setFormatView() 根据格式文件修改视图，准确的说，修改视图数据this.items
+    */
+    setFormatView () {
+      if (this.formatFile !== '') {
+        fs.readFile(this.formatFile, 'utf-8', (err, data) => {
+          if (err) {
+            this.notice('读取格式文件失败')
+          } else {
+            this.items = JSON.parse(data)
+            this.fileChooseDialog = false
+          }
+        })
+      } else {
+        this.notice('没有选择格式文件')
+      }
     }
   }
 }

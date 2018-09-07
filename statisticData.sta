@@ -1,0 +1,1 @@
+[{"id":1,"type":"text","itemName":"文本","constrait":{"min":0,"max":150,"constant":0,"lang":"mix"}},{"id":2,"type":"num","itemName":"数字","constrait":{"length":1,"min":0,"max":100000}},{"id":3,"type":"date","itemName":"日期","constrait":"无约束"}]
