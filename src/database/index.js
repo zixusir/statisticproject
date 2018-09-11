@@ -40,6 +40,7 @@ let init = function (str) {
     autoload: true
   })
   console.log('___init Database!___')
+  db.name = str
   dbs.push(db)
 }
 /**
@@ -52,7 +53,9 @@ let insert = function (databaseName, data) {
   for (let i = 0; i < dbs.length; i++) {
     if (dbs[i].name === databaseName) {
       dbs[i].insert(data)
+      break
     }
+    if (i === dbs.length - 1) console.log('数据插入错误')
   }
 }
 

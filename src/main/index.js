@@ -60,11 +60,6 @@ app.on('activate', () => {
 */
 const fileDialog = dialog
 const ipc = ipcMain
-ipc.on('insert-database', (e, arg) => {
-  console.log('主进程获得数据')
-  console.log(arg) // 参数就是渲染进程获得的数据
-  DataBase.insert(arg)
-})
 
 ipc.on('open-file-dialog', (e) => {
   console.log('开始选择文件')
@@ -87,14 +82,13 @@ ipc.on('open-file-dialog', (e) => {
 */
 ipc.on('editpage-chooseformat', (e) => {
   let appPath = app.getAppPath()
-  console.log(__dirname)
   fileDialog.showOpenDialog({
     title: '选择文件',
     properties: ['openFile'],
     defaultPath: appPath,
     buttonLabel: '选择',
     filters: [
-      {name: 'dataFile', extensions: ['sta']}
+      {name: 'sta格式文件', extensions: ['sta']}
     ]
   }, (files) => {
     if (files) {
@@ -105,6 +99,34 @@ ipc.on('editpage-chooseformat', (e) => {
 })
 ipc.on('editpage-newdatabase', (e, arg) => {
   DataBase.init(arg)
+})
+
+/**
+ * 配合fillpage的主进程
+ */
+ipc.on('fillpage-choosefillfile', (e) => {
+  let appPath = app.getAppPath()
+  fileDialog.showOpenDialog({
+    title: '选择文件',
+    properties: ['openFile'],
+    defaultPath: appPath,
+    buttonLabel: '选择',
+    filters: [
+      {name: 'sta格式文件', extensions: ['sta']}
+    ]
+  }, (files) => {
+    if (files) {
+      e.sender.send('fillpage-getfillfile', files)
+    }
+  })
+})
+/**
+ * 向指定文件的数据库插入数据
+ */
+ipc.on('fillpage-insertdata', (e, arg1, arg2) => {
+  console.log(arg1)
+  console.log(arg2)
+  DataBase.insert(arg1, arg2)
 })
 
 /**

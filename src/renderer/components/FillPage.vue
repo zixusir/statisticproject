@@ -2,7 +2,8 @@
   <el-container>
     <el-header>
       <el-row>
-        <el-col :span="22">
+        <el-col :span="4">当前：{{this.fillFile}}</el-col>
+        <el-col :span="18">
           <p style="font-size: 20px; padding: 0 20px;">填表</p>
         </el-col>
         <el-col :span="2">
@@ -56,6 +57,21 @@
           </div>
         </el-form-item>
       </el-form>
+
+      <el-dialog
+        title="选择文件"
+        :visible.sync="fileChooseDialog"
+        :show-close=false
+        :close-on-press-escape=false
+        width="50%">
+        <span>
+          <div >
+            <p>在开始之前，请选择你要填写的统计表（在文件系统中选择一个‘.sta’后缀名文件）</p>
+            <el-button type="primary" v-on:click="chooseFillFile()">选择</el-button>
+          </div>
+        </span>
+      </el-dialog>
+
     </el-main>
   </el-container>
 </template>
@@ -65,30 +81,39 @@ import fs from 'fs'
 import Path from 'path'
 import Vue from 'vue'
 import electron from 'electron'
-let tempPath = ''
-console.log(tempPath)
+import GlobalData from '@/components/GlobalData'
+// let tempPath = ''
+// console.log(tempPath)
 export default {
   data () {
     return {
-      items: []
+      items: [],
+      fileChooseDialog: false,
+      fillFile: ''
     }
   },
   created: function () {
-    let filePath = Path.join('./', 'statisticData.sta')
-    fs.readFile(filePath, 'utf-8', (err, data) => {
-      if (err) {
-        this.notice('error', '读取文件失败')
-      } else {
-        this.notice('info', '请稍等，正在读取文件')
-        this.items = JSON.parse(data)
-        this.items.forEach(item => {
-          item.value = ''
-          if (item.type === 'pic') {
-            item.value = 'src\\renderer\\assets\\images\\81f937cegw1f34qco2koaj20xc0wsk52.jpg'
-          }
-        })
-      }
-    })
+    if (GlobalData.state.fillFile === '') {
+      this.fileChooseDialog = true
+    } else {
+      console.log(GlobalData.state.fillFile)
+      this.fillFile = GlobalData.state.fillFile
+      let filePath = Path.join('./', GlobalData.state.fillFile)
+      fs.readFile(filePath, 'utf-8', (err, data) => {
+        if (err) {
+          this.notice('error', '读取文件失败')
+        } else {
+          this.notice('info', '请稍等，正在读取文件')
+          this.items = JSON.parse(data)
+          this.items.forEach(item => {
+            item.value = ''
+            if (item.type === 'pic') {
+              item.value = 'src\\renderer\\assets\\images\\81f937cegw1f34qco2koaj20xc0wsk52.jpg'
+            }
+          })
+        }
+      })
+    }
   },
   methods: {
     notice (type, str) {
@@ -111,7 +136,7 @@ export default {
       let ipc = electron.ipcRenderer
       let _path = Path
       let _this = this
-      console.log(tempPath)
+      // console.log(tempPath)
       ipc.send('open-file-dialog')
       ipc.on('selectedItems', (e, p) => {
         let filePath = p[0]
@@ -130,9 +155,44 @@ export default {
     },
     formSubmit () {
       console.log('提交')
-      // 渲染进程操作
+      console.log(this.items)
       let ipc = electron.ipcRenderer
-      ipc.send('insert-database', this.items) // 将需要保存的数据以参数的形式发送个主进程
+      ipc.send('fillpage-insertdata', this.fillFile.split('.')[0], this.items)
+    },
+    /**
+     * chooseFillFile() 选择一个填写文件
+     */
+    chooseFillFile () {
+      let ipc = electron.ipcRenderer
+      ipc.send('fillpage-choosefillfile')
+      ipc.on('fillpage-getfillfile', (e, d) => {
+        console.log(d[0])
+        let fileNameArr = d[0].split('\\')
+        this.fillFile = fileNameArr[fileNameArr.length - 1]
+        GlobalData.setFillFile(this.fillFile)
+        this.setFillPageView()
+      })
+    },
+    /**
+     * setFillPageView() 触发视图更改
+     */
+    setFillPageView () {
+      if (this.fillFile !== '') {
+        fs.readFile(this.fillFile, 'utf-8', (err, data) => {
+          if (err) {
+            this.$message.error('读取格式文件失败')
+          } else {
+            this.$message({
+              message: '正在使用' + this.fillFile,
+              type: 'sucess'
+            })
+            this.items = JSON.parse(data)
+            this.fileChooseDialog = false
+          }
+        })
+      } else {
+        this.$message.error('读取格式文件失败')
+      }
     }
   }
 }

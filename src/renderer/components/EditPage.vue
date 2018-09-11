@@ -2,7 +2,8 @@
   <el-container class="mainContainer">
     <el-header class="header">
       <el-row :gutter="20">
-        <el-col :span="22"><p>修改统计项目</p></el-col>
+        <el-col :span="4">Current: {{this.formatFile}}</el-col>
+        <el-col :span="18"><p>修改统计项目</p></el-col>
         <el-col :span="2"><i class="el-icon-check" v-on:click="save()"></i></el-col>
       </el-row>
     </el-header>
@@ -20,10 +21,10 @@
             <div v-if="item.type === 'num'">
               <num-constrait ref="numCt" v-bind="item"></num-constrait>
             </div>
-            <div v-if="item.type === 'date'"> </div>
-            <div v-if="item.type === 'time'"> </div>
-            <div v-if="item.type === 'email'"> </div>
-            <div v-if="item.type === 'longtext'"> </div>
+            <div v-if="item.type === 'date'"> 暂无约束组件 </div>
+            <div v-if="item.type === 'time'"> 暂无约束组件 </div>
+            <div v-if="item.type === 'email'"> 暂无约束组件 </div>
+            <div v-if="item.type === 'longtext'"> 暂无约束组件 </div>
             <div v-if="item.type === 'pic'">
               <pic-constrait ref="picCt" v-bind="item"></pic-constrait>
             </div>
@@ -91,7 +92,7 @@ import Electron from 'electron'
 import textConstrait from '@/components/EditPages/TextConstrait'
 import numConstrait from '@/components/EditPages/NumConstrait'
 import picConstrait from '@/components/EditPages/PicConstrait'
-import Global from '@/components/Global'
+import GlobalData from '@/components/GlobalData'
 export default {
   data () {
     return {
@@ -111,11 +112,13 @@ export default {
     picConstrait
   },
   created () {
-    if (this.formatFile === '') this.fileChooseDialog = true
-  },
-  computed: {
-    currentFile: function () {
-      return Global.state.currentFile
+    if (GlobalData.state.newEdit) {
+      if (this.formatFile === '') this.fileChooseDialog = true
+      console.log('创建新的工作文件')
+    } else {
+      this.formatFile = GlobalData.state.editFile
+      this.setFormatView()
+      console.log('使用当前工作文件：' + this.formatFile)
     }
   },
   methods: {
@@ -133,7 +136,7 @@ export default {
         }
       }
       this.items.push(text)
-      console.log(this.$refs.textCt)
+      // console.log(this.$refs.textCt)
     },
     addNumber () {
       let number = {
@@ -275,6 +278,7 @@ export default {
             })
           } else {
             ipc.send('editpage-newdatabase', this.formatName)
+            this.saveDialog = false
             this.$notify({
               title: '成功',
               duration: 1500,
@@ -325,14 +329,11 @@ export default {
     * chooseFormat()更改格式文件
     */
     chooseFormat () {
-      let G = Global.state
-      console.log(G)
       let ipc = Electron.ipcRenderer
       ipc.send('editpage-chooseformat')
       ipc.on('editpage-getformat', (e, d) => {
-        console.log(Global)
         this.formatFile = d[0]
-        // G.state.currentFile = this.formatFile
+        GlobalData.setEditFile(this.formatFile)
         this.setFormatView()
       })
     },
