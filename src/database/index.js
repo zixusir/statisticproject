@@ -25,7 +25,7 @@ let skanDatabase = function () {
           dbs.push(db)
         }
       })
-      console.log(dbs)
+      // console.log(dbs)
     }
   })
 }
@@ -45,8 +45,6 @@ let init = function (str) {
 }
 /**
  * 向指定数据库插入一项数据
- * @param {*} databaseName 数据库名称
- * @param {*} data 要插入的数据
  */
 let insert = function (databaseName, data) {
   console.log('insert a data')
@@ -58,9 +56,50 @@ let insert = function (databaseName, data) {
     if (i === dbs.length - 1) console.log('数据插入错误')
   }
 }
+/**
+ * 删除数据库中的一条记录
+ */
+let del = function (databaseName, data) {}
+/**
+ * 查找你一记录
+ */
+let find = function (databaseName, indexStr) { }
+/**
+ * 更新一条记录
+ */
+let change = function (databaseName, oldstr, newstr) {}
 
-export {
+/**
+ * 查找一整个数据集
+ */
+let findCollection = async function (databaseName) {
+  let ret
+  ret = await findDocs(databaseName)
+  // console.log(ret)
+  return ret
+}
+let findDocs = function (databaseName) {
+  return new Promise((resolve, reject) => {
+    for (let i = 0; i < dbs.length; i++) {
+      if (dbs[i].name === databaseName) {
+        dbs[i].find({}, (err, docs) => {
+          if (err) {
+            reject(docs)
+          } else {
+            resolve(docs)
+          }
+        })
+      }
+    }
+  })
+}
+
+export default {
   init,
+  skanDatabase,
   insert,
-  skanDatabase
+  del,
+  find,
+  change,
+  findCollection
 }

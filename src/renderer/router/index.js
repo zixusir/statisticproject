@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import FillPage from '@/components/FillPage'
 import EditPage from '@/components/EditPage'
+import SheetPage from '@/components/SheetPage'
 
 Vue.use(Router)
 
@@ -21,6 +22,11 @@ export default new Router({
       path: '/editpage',
       name: 'editpage',
       component: EditPage
+    },
+    {
+      path: 'sheetpage',
+      name: 'sheetpage',
+      component: SheetPage
     }
   ]
 })

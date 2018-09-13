@@ -21,10 +21,12 @@
             <span slot="title">填表</span>
           </el-menu-item>
         </router-link>
-        <el-menu-item index="4" >
-          <i class="el-icon-printer"></i>
-          <span slot="title">制表导出</span>
-        </el-menu-item>
+        <router-link :to="{name: 'sheetpage'}">
+          <el-menu-item index="4" >
+            <i class="el-icon-printer"></i>
+            <span slot="title">制表导出</span>
+          </el-menu-item>
+        </router-link>
         <el-menu-item index="5">
           <i class="el-icon-upload"></i>
           <span slot="title">发起统计</span>

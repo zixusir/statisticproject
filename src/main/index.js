@@ -1,7 +1,8 @@
 'use strict'
 
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
-import * as DataBase from '../database/index'
+import DataBase from '../database/index'
+// import Path from 'path'
 // import Path from 'path'
 /**
  * Set `__static` path to static files in production
@@ -35,10 +36,6 @@ function createWindow () {
    * 扫描数据库文件
    */
   DataBase.skanDatabase()
-  // /**
-  //  * Initial database
-  //  */
-  // DataBase.init()
 }
 
 app.on('ready', createWindow)
@@ -120,13 +117,39 @@ ipc.on('fillpage-choosefillfile', (e) => {
     }
   })
 })
-/**
- * 向指定文件的数据库插入数据
- */
+
 ipc.on('fillpage-insertdata', (e, arg1, arg2) => {
   console.log(arg1)
   console.log(arg2)
-  DataBase.insert(arg1, arg2)
+  let data = {
+    content: arg2
+  }
+  DataBase.insert(arg1, data)
+})
+
+/**
+ * 配合sheetpage的 主进程
+ */
+ipc.on('sheetpage-readitems', (e) => {
+  let appPath = app.getAppPath()
+  console.log(appPath)
+  fileDialog.showOpenDialog({
+    title: '选择文件',
+    properties: ['openFile'],
+    defaultPath: appPath,
+    buttonLabel: '选择',
+    filters: [
+      {name: 'db数据库文件', extensions: ['db']}
+    ]
+  }, (file) => {
+    if (file) {
+      let fileArr = file[0].split('\\')
+      let filename = fileArr[fileArr.length - 1].split('.')[0]
+      let database = DataBase.findCollection(filename)
+      console.log('找到数据')
+      database.then(ret => e.sender.send('sheetpage-getitems', ret))
+    }
+  })
 })
 
 /**
