@@ -2,6 +2,7 @@
 
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import DataBase from '../database/index'
+import Server from '../server/index'
 // import Path from 'path'
 // import Path from 'path'
 /**
@@ -59,7 +60,7 @@ const fileDialog = dialog
 const ipc = ipcMain
 
 ipc.on('open-file-dialog', (e) => {
-  console.log('开始选择文件')
+  console.log('start choose')
   let startPath = ''
   fileDialog.showOpenDialog({
     title: '选择文件',
@@ -132,26 +133,48 @@ ipc.on('fillpage-insertdata', (e, arg1, arg2) => {
  */
 ipc.on('sheetpage-readitems', (e) => {
   let appPath = app.getAppPath()
-  console.log(appPath)
   fileDialog.showOpenDialog({
     title: '选择文件',
     properties: ['openFile'],
     defaultPath: appPath,
     buttonLabel: '选择',
     filters: [
-      {name: 'db数据库文件', extensions: ['db']}
+      {name: 'sta文件', extensions: ['sta']}
     ]
   }, (file) => {
     if (file) {
       let fileArr = file[0].split('\\')
       let filename = fileArr[fileArr.length - 1].split('.')[0]
       let database = DataBase.findCollection(filename)
-      console.log('找到数据')
+      console.log('find data')
       database.then(ret => e.sender.send('sheetpage-getitems', ret))
     }
   })
 })
 
+/**
+ * 配合netpage的主进程
+ */
+ipc.on('netpage-choosenetfile', (e) => {
+  let appPath = app.getAppPath()
+  fileDialog.showOpenDialog({
+    title: '选择文件',
+    properties: ['openFile'],
+    defaultPath: appPath,
+    buttonLabel: '选择',
+    filters: [
+      {name: 'sta文件', extensions: ['sta']}
+    ]
+  }, (file) => {
+    e.sender.send('netpage-getnetfile', file)
+  })
+})
+ipc.on('netpage-startserver', (e) => {
+  Server.startServer()
+})
+ipc.on('netpage-stopserver', (e) => {
+  Server.stopServer()
+})
 /**
  * Auto Updater
  *

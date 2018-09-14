@@ -31,7 +31,7 @@
         :show-close=false
         :close-on-press-escape=false
         width="50%">
-        <span>选择你的数据库</span>
+        <span>选择你的数据文件</span>
         <el-button type="primary" v-on:click="chooseSheetFile()">选择</el-button>
       </el-dialog>
     </el-main>

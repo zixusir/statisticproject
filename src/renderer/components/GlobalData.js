@@ -4,7 +4,9 @@ let state = {
   fillFile: '',
   newFill: true,
   sheetFile: '',
-  newSheet: true
+  newSheet: true,
+  netFile: '',
+  newNet: true
 }
 
 let setEditFile = function (newFile) {
@@ -22,9 +24,14 @@ let setSheetFile = function (newFile) {
   state.newSheet = false
 }
 
+let setNetFile = function (newFile) {
+  state.netFile = newFile
+  state.newNet = false
+}
 export default {
   state,
   setEditFile,
   setFillFile,
-  setSheetFile
+  setSheetFile,
+  setNetFile
 }

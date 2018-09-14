@@ -27,10 +27,12 @@
             <span slot="title">制表导出</span>
           </el-menu-item>
         </router-link>
-        <el-menu-item index="5">
-          <i class="el-icon-upload"></i>
-          <span slot="title">发起统计</span>
-        </el-menu-item>
+        <router-link :to="{name: 'netpage'}">
+          <el-menu-item index="5">
+            <i class="el-icon-upload"></i>
+            <span slot="title">发起统计</span>
+          </el-menu-item>
+        </router-link>
       </el-menu>
     </div>
     <router-view id="router"></router-view>

@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import FillPage from '@/components/FillPage'
 import EditPage from '@/components/EditPage'
 import SheetPage from '@/components/SheetPage'
+import NetPage from '@/components/NetPage'
 
 Vue.use(Router)
 
@@ -24,9 +25,14 @@ export default new Router({
       component: EditPage
     },
     {
-      path: 'sheetpage',
+      path: '/sheetpage',
       name: 'sheetpage',
       component: SheetPage
+    },
+    {
+      path: '/netpage',
+      name: 'netpage',
+      component: NetPage
     }
   ]
 })
