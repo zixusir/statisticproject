@@ -47,6 +47,7 @@
               v-on:change="checkInput(item)"
               v-model="item.value"
               type="date"
+              style="display:flex;"
               placeholder="选择日期">
             </el-date-picker>
             <div
@@ -58,6 +59,7 @@
           </div>
           <div v-if="item.type === 'time'">
             <el-time-picker
+              style="display:flex;"
               v-on:change="checkInput(item)"
               v-model="item.value"
               :picker-options="{
@@ -354,15 +356,10 @@ export default {
           break
         case 'date':
           warn = []
-          // console.log(item.value > item.constrait.max)
-          // let sMin = item.constrait.min.split('-')
-          // let sMax = item.constrait.max.split('-')
-          // let min = new Date()
-          // let max = new Date()
-          // min.setFullYear(parseInt(sMin[0]), parseInt(sMin[1]) - 1, parseInt(sMin[2]))
-          // max.setFullYear(parseInt(sMax[0]), parseInt(sMax[1]) - 1, parseInt(sMax[2]))
-          if (item.value > item.constrait.max || item.value < item.constrait.min) {
-            let warnStr = `请输入${item.constrait.min.toDateString()}与${item.constrait.max.toDateString()}之间的日期`
+          let min = new Date(item.constrait.min)
+          let max = new Date(item.constrait.max)
+          if (item.value > max || item.value < min) {
+            let warnStr = `请输入${min.toLocaleDateString()}与${max.toLocaleDateString()}之间的日期`
             warn.push(warnStr)
           }
           newItem = item
@@ -370,6 +367,16 @@ export default {
           Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'time':
+          warn = []
+          let tmin = new Date(item.constrait.tafter)
+          let tmax = new Date(item.constrait.tbefore)
+          if (item.value > tmax || item.value < tmin) {
+            let warnStr = `请输入${tmin.toLocaleTimeString()}与${tmax.toLocaleTimeString()}之间的时间`
+            warn.push(warnStr)
+          }
+          newItem = item
+          newItem.warn = warn
+          Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'email':
           break
