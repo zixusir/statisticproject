@@ -194,11 +194,18 @@ export default {
       this.items.push(percent)
     },
     addDate () {
+      let start = new Date()
+      start.setFullYear(1980, 1, 1)
+      let end = new Date()
+      end.setFullYear(2100, 1, 1)
       let date = {
         id: this.items.length + 1,
         type: 'date',
         itemName: '日期',
-        constrait: '无约束'
+        constrait: {
+          min: start,
+          max: end
+        }
       }
       this.items.push(date)
     },
@@ -269,22 +276,8 @@ export default {
       }
     },
     childByValue (arg) {
-      // console.log(arg.item)
       arg.item.constrait = arg.constrait
-      // console.log(this.items)
     },
-    // constrait (item) {
-    //   this.dialogItem = item
-    //   this.dialogVisible = true
-    //   switch (item.type) {
-    //     case 'text':
-    //       console.log('set constraits to text')
-    //       break
-    //     case 'number':
-    //       console.log('set constraits to number')
-    //       break
-    //   }
-    // },
     getConstrait () {
       this.dialogVisible = false
       let item = this.dialogItem

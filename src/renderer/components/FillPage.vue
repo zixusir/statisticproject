@@ -44,49 +44,118 @@
           </div>
           <div v-if="item.type === 'date'">
             <el-date-picker
+              v-on:change="checkInput(item)"
               v-model="item.value"
               type="date"
               placeholder="选择日期">
             </el-date-picker>
+            <div
+              class="warning"
+              v-for="warn in item.warn"
+              :key="warn.id">
+              {{warn}}
+            </div>
           </div>
           <div v-if="item.type === 'time'">
             <el-time-picker
+              v-on:change="checkInput(item)"
               v-model="item.value"
               :picker-options="{
                 selectableRange: '00:00:00 - 23:59:59'
               }"
               placeholder="任意时间点">
             </el-time-picker>
+            <div
+              class="warning"
+              v-for="warn in item.warn"
+              :key="warn.id">
+              {{warn}}
+            </div>
           </div>
           <div v-if="item.type === 'longtext'">
             <el-input
+              v-on:change="checkInput(item)"
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 5}"
               placeholder="请输入内容"
               v-model="item.value">
             </el-input>
+            <div
+              class="warning"
+              v-for="warn in item.warn"
+              :key="warn.id">
+              {{warn}}
+            </div>
           </div>
           <div v-if="item.type === 'pic'">
             <div>
               <el-button size="small" type="primary" v-on:click="chooseFile(item)">选择</el-button>
               <div slot="tip" class="el-upload__tip">只能上传{{item.constrait.checkList}}文件，且不超过{{item.constrait.max}}MB</div>
               <img v-bind:src="item.value" style="height: 100px; wdith: 100px;"/>
+              <div
+                class="warning"
+                v-for="warn in item.warn"
+                :key="warn.id">
+                {{warn}}
+              </div>
               <!-- <img src="src\renderer\assets\images\81f937cegw1f34qco2koaj20xc0wsk52.jpg" alt=""> -->
             </div>
           </div>
           <div v-if="item.type === 'email'">
-            <el-input v-model="item.value" placeholder="请输入内容" :clearable=true></el-input>
+            <el-input
+              v-on:change="checkInput(item)"
+              v-model="item.value"
+              placeholder="请输入内容"
+              :clearable=true>
+            </el-input>
+            <div
+              class="warning"
+              v-for="warn in item.warn"
+              :key="warn.id">
+              {{warn}}
+            </div>
           </div>
           <div v-if="item.type === 'idcard'">
-            <el-input v-model="item.value" placeholder="请输入内容" :clearable=true></el-input>
+            <el-input
+              v-on:change="checkInput(item)"
+              v-model="item.value"
+              placeholder="请输入内容"
+              :clearable=true>
+            </el-input>
+            <div
+              class="warning"
+              v-for="warn in item.warn"
+              :key="warn.id">
+              {{warn}}
+            </div>
           </div>
           <div v-if="item.type === 'zip'">
-            <el-input v-model="item.value" placeholder="请输入内容" :clearable=true></el-input>
+            <el-input
+              v-on:change="checkInput(item)"
+              v-model="item.value"
+              placeholder="请输入内容"
+              :clearable=true></el-input>
+            <div
+              class="warning"
+              v-for="warn in item.warn"
+              :key="warn.id">
+              {{warn}}
+            </div>
           </div>
           <div v-if="item.type === 'percent'">
-            <el-input v-model="item.value" placeholder="请输入内容" :clearable=true>
-               <template slot="append">%</template>
+            <el-input
+              v-on:change="checkInput(item)"
+              v-model="item.value"
+              placeholder="请输入内容"
+              :clearable=true>
+              <template slot="append">%</template>
             </el-input>
+            <div
+              class="warning"
+              v-for="warn in item.warn"
+              :key="warn.id">
+              {{warn}}
+            </div>
           </div>
         </el-form-item>
       </el-form>
@@ -271,8 +340,34 @@ export default {
           Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'percent':
+          warn = []
+          let numReg2 = /^[0-9]+(.[0-9]*)?$/
+          if (!numReg2.test(item.value)) {
+            warn.push('请输入数字')
+          } else if (item.value > 100 || item.value < 0) {
+            let warnStr = `请输入0-100之间的数`
+            warn.push(warnStr)
+          }
+          newItem = item
+          newItem.warn = warn
+          Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'date':
+          warn = []
+          // console.log(item.value > item.constrait.max)
+          // let sMin = item.constrait.min.split('-')
+          // let sMax = item.constrait.max.split('-')
+          // let min = new Date()
+          // let max = new Date()
+          // min.setFullYear(parseInt(sMin[0]), parseInt(sMin[1]) - 1, parseInt(sMin[2]))
+          // max.setFullYear(parseInt(sMax[0]), parseInt(sMax[1]) - 1, parseInt(sMax[2]))
+          if (item.value > item.constrait.max || item.value < item.constrait.min) {
+            let warnStr = `请输入${item.constrait.min.toDateString()}与${item.constrait.max.toDateString()}之间的日期`
+            warn.push(warnStr)
+          }
+          newItem = item
+          newItem.warn = warn
+          Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'time':
           break

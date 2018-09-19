@@ -7,11 +7,9 @@
         style="line-height: 39px;">
         <el-date-picker
           size="small"
-          v-model="after"
+          v-model="min"
           type="date"
-          placeholder="选择日期"
-          format="yyyy 年 MM 月 dd 日"
-          value-format="yyyy-MM-dd">
+          placeholder="选择日期">
         </el-date-picker>
         之后
       </el-col>
@@ -22,11 +20,9 @@
         style="line-height: 39px;">
         <el-date-picker
           size="small"
-          v-model="before"
+          v-model="max"
           type="date"
-          placeholder="选择日期"
-          format="yyyy 年 MM 月 dd 日"
-          value-format="yyyy-MM-dd">
+          placeholder="选择日期">
         </el-date-picker>
         之前
       </el-col>
@@ -38,29 +34,29 @@
 export default {
   data () {
     return {
-      after: '',
-      before: ''
+      min: '',
+      max: ''
     }
   },
   props: [
     'item'
   ],
   watch: {
-    after: function () {
+    min: function () {
       let data = {
         constrait: {
-          after: this.after,
-          before: this.before
+          min: this.min,
+          max: this.max
         },
         item: this.item
       }
       this.$emit('childByValue', data)
     },
-    before: function () {
+    max: function () {
       let data = {
         constrait: {
-          after: this.after,
-          before: this.before
+          min: this.min,
+          max: this.max
         },
         item: this.item
       }
@@ -73,6 +69,6 @@ export default {
 <style>
 .dateContrait {
   background-color:azure;
-  padding-bottom: 5px;  
+  padding-bottom: 5px;
 }
 </style>
