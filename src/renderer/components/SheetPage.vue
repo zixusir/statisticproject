@@ -2,12 +2,12 @@
   <el-container>
     <el-header>
       <el-row>
-        <el-col :span="4">当前</el-col>
-        <el-col :span="18">
-          <p style="font-size: 20px; padding: 0 20px;">制表导出</p>
+        <el-col :span="4" class="align-center">当前</el-col>
+        <el-col :span="16">
+          <p style="font-size: 20px; padding: 0 20px;" class="align-center">制表导出</p>
         </el-col>
-        <el-col :span="2">
-          <i class="el-icon-check" v-on:click="formSubmit()"></i>
+        <el-col :span="4">
+          <i class="el-icon-check" style="float: right; padding: 20px;" v-on:click="formSubmit()"></i>
         </el-col>
       </el-row>
     </el-header>
@@ -78,5 +78,63 @@ export default {
 </script>
 
 <style>
+  .el-header, .el-footer {
+    background-color: #B3C0D1;
+    color: #333;
+    text-align: center;
+    float: left;
+    height: auto;
+    /* line-height: 60px; */
+  }
+  .header i {
+    padding: 20px;
+  }
+  .el-main {
+    background-color: #E9EEF3;
+    color: #333;
+    text-align: center;
+    /* line-height: 160px; */
+  }
 
+ .mainContent {
+    /* margin: auto; */
+    text-align: center;
+    background-color: #99CCFF;
+    padding: 0;
+    display: block;
+ }
+ .el-icon-circle-plus-outline{
+   text-align: center;
+   margin: 12px;
+ }
+ .newitem{
+   background-color: #B3C0D1;
+   padding: 10px 0;
+ }
+ .mainContainer {
+   max-height: 100vh;
+ }
+ .item{
+   margin-bottom: 7px;
+ }
+ .itemName{
+   width: 150px;
+ }
+ .item p{
+   width: 150px;
+   margin: 0;
+   padding: 10px 5px 10px 5px;
+ }
+ .item i{
+  /* margin: 10px; */
+ }
+  body{
+    margin: 0;
+    background-color: beige;
+  }
+  .align-center {
+    -webkit-margin-before: 0 !important;
+    -webkit-margin-after: 0 !important;
+    line-height: 60px;
+  }
 </style>

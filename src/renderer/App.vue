@@ -86,4 +86,7 @@
   #router {
     height: 100vh;
   }
+  body {
+    min-width: 950px;
+  }
 </style>

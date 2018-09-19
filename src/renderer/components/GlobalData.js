@@ -6,7 +6,8 @@ let state = {
   sheetFile: '',
   newSheet: true,
   netFile: '',
-  newNet: true
+  newNet: true,
+  netData: ['test']
 }
 
 let setEditFile = function (newFile) {

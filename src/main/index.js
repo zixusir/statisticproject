@@ -145,9 +145,10 @@ ipc.on('sheetpage-readitems', (e) => {
     if (file) {
       let fileArr = file[0].split('\\')
       let filename = fileArr[fileArr.length - 1].split('.')[0]
-      let database = DataBase.findCollection(filename)
+      DataBase.findCollection(filename).then(
+        ret => e.sender.send('sheetpage-getitems', ret)
+      )
       console.log('find data')
-      database.then(ret => e.sender.send('sheetpage-getitems', ret))
     }
   })
 })
@@ -169,8 +170,8 @@ ipc.on('netpage-choosenetfile', (e) => {
     e.sender.send('netpage-getnetfile', file)
   })
 })
-ipc.on('netpage-startserver', (e) => {
-  Server.startServer()
+ipc.on('netpage-startserver', (e, arg1, arg2) => {
+  Server.startServer(arg1, arg2)
 })
 ipc.on('netpage-stopserver', (e) => {
   Server.stopServer()

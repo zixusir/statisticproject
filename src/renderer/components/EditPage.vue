@@ -2,37 +2,61 @@
   <el-container class="mainContainer">
     <el-header class="header">
       <el-row :gutter="20">
-        <el-col :span="4">Current: {{this.formatFile}}</el-col>
-        <el-col :span="18"><p>修改统计项目</p></el-col>
-        <el-col :span="2"><i class="el-icon-check" v-on:click="save()"></i></el-col>
+        <el-col :span="4" class="align-center">当前:{{this.formatFile}}</el-col>
+        <el-col :span="16"><p style="font-size: 20px; padding: 0 20px;" class="align-center">修改统计项目</p></el-col>
+        <el-col :span="4"><i class="el-icon-check" v-on:click="save()" style="float: right;"></i></el-col>
       </el-row>
     </el-header>
 
     <el-main>
       <el-container v-for="item in items" :key="item.id" class="item">
-        <el-row style="width: 100%">
+        <el-row style="width: 100%; background-color: azure; padding-top: 6px;">
           <el-col :span="6">
             <el-input v-model="item.itemName" placeholder="请输入内容" class="itemName"></el-input>
           </el-col>
           <el-col :span="14">
             <div v-if="item.type === 'text'">
-              <text-constrait ref="textCt" v-bind="item"></text-constrait>
+              <text-constrait ref="textCt" v-bind:item="item" v-on:childByValue="childByValue"></text-constrait>
             </div>
             <div v-if="item.type === 'num'">
-              <num-constrait ref="numCt" v-bind="item"></num-constrait>
+              <num-constrait ref="numCt" v-bind:item="item" v-on:childByValue="childByValue"></num-constrait>
             </div>
-            <div v-if="item.type === 'date'"> 暂无约束组件 </div>
-            <div v-if="item.type === 'time'"> 暂无约束组件 </div>
-            <div v-if="item.type === 'email'"> 暂无约束组件 </div>
-            <div v-if="item.type === 'longtext'"> 暂无约束组件 </div>
+            <div v-if="item.type === 'date'">
+              <date-constrait v-bind:item="item" v-on:childByValue="childByValue"></date-constrait>
+            </div>
+            <div v-if="item.type === 'time'">
+              <time-constrait v-bind:item="item" v-on:childByValue="childByValue"></time-constrait>
+            </div>
+            <div v-if="item.type === 'longtext'"> 
+              <langtext-constrait v-bind:item="item" v-on:childByValue="childByValue"></langtext-constrait>
+            </div>
             <div v-if="item.type === 'pic'">
-              <pic-constrait ref="picCt" v-bind="item"></pic-constrait>
+              <pic-constrait ref="picCt" v-bind:item="item" v-on:childByValue="childByValue"></pic-constrait>
+            </div>
+            <div v-if="item.type === 'percent'"
+              style="line-height: 40px;">
+              预设百分数约束条件
+            </div>
+            <div v-if="item.type === 'zip'"
+              style="line-height: 40px;">
+              预设邮编约束条件
+            </div>
+            <div v-if="item.type === 'idcard'"
+              style="line-height: 40px;">
+              预设身份证约束条件
+            </div>
+            <div v-if="item.type === 'email'"
+              style="line-height: 40px;">
+              预设邮箱约束条件 
             </div>
           </el-col>
-          <el-col :span="2">
-            <i class="el-icon-delete" v-on:click="deleteThis(item)"></i>
-            <i class="el-icon-caret-top" v-on:click="itemUp(item)"></i>
-            <i class="el-icon-caret-bottom" v-on:click="itemDown(item)"></i>
+          <el-col :span="4"
+            style="display: flex; justify-content: center;">
+            <div style="display: block; width: 20px;">
+              <i class="el-icon-delete" v-on:click="deleteThis(item)"></i>
+              <i class="el-icon-caret-top" v-on:click="itemUp(item)"></i>
+              <i class="el-icon-caret-bottom" v-on:click="itemDown(item)"></i>
+            </div>
           </el-col>
         </el-row>
       </el-container>
@@ -71,11 +95,14 @@
             <el-row>
               <el-button v-on:click="addText()">文本</el-button>
               <el-button type="info" v-on:click="addNumber()">数字</el-button>
+              <el-button type="info" v-on:click="addPercent()">百分数</el-button>
               <el-button type="primary" v-on:click="addDate()">日期</el-button>
               <el-button type="success" v-on:click="addTime()">时间</el-button>
-              <el-button type="warning" v-on:click="addEmail()">邮箱</el-button>
-              <el-button type="danger" v-on:click="addLongText()">长文本</el-button>
+              <el-button v-on:click="addLongText()">长文本</el-button>
               <el-button type="danger" v-on:click="addPic()">图片</el-button>
+              <el-button type="primary" v-on:click="addZip()">邮编</el-button>
+              <el-button v-on:click="addIdcard()">身份证号</el-button>
+              <el-button type="warning" v-on:click="addEmail()">邮箱</el-button>
             </el-row>
           </div>
         </div>
@@ -92,6 +119,9 @@ import Electron from 'electron'
 import textConstrait from '@/components/EditPages/TextConstrait'
 import numConstrait from '@/components/EditPages/NumConstrait'
 import picConstrait from '@/components/EditPages/PicConstrait'
+import dateConstrait from '@/components/EditPages/dateConstrait'
+import timeConstrait from '@/components/EditPages/timeConstrait'
+import langtextConstrait from '@/components/EditPages/langtextConstrait'
 import GlobalData from '@/components/GlobalData'
 export default {
   data () {
@@ -109,7 +139,10 @@ export default {
   components: {
     textConstrait,
     numConstrait,
-    picConstrait
+    picConstrait,
+    dateConstrait,
+    timeConstrait,
+    langtextConstrait
   },
   created () {
     if (GlobalData.state.newEdit) {
@@ -130,8 +163,7 @@ export default {
         itemName: '文本',
         constrait: {
           min: 0,
-          max: 150,
-          constant: 0, // 如果常数为0，表示不定长度，否则表示定长，min与max自动失效
+          max: 20,
           lang: 'mix' // pureEng, pureChn, mix三种混合选项
         }
       }
@@ -150,6 +182,16 @@ export default {
         }
       }
       this.items.push(number)
+    },
+    addPercent () {
+      let percent = {
+        id: this.items.length + 1,
+        type: 'percent',
+        itemName: '百分数',
+        constrait: {
+        }
+      }
+      this.items.push(percent)
     },
     addDate () {
       let date = {
@@ -182,7 +224,7 @@ export default {
       let longText = {
         id: this.items.length + 1,
         type: 'longtext',
-        itemName: '多行文本',
+        itemName: '段落',
         constrait: '无约束'
       }
       this.items.push(longText)
@@ -193,12 +235,31 @@ export default {
         type: 'pic',
         itemName: '图片',
         constrait: {
-          width: 100,
-          height: 300,
-          size: 2
+          checkList: [],
+          max: 50
         }
       }
       this.items.push(pic)
+    },
+    addZip () {
+      let zip = {
+        id: this.items.length + 1,
+        type: 'zip',
+        itemName: '邮编',
+        constrait: {
+        }
+      }
+      this.items.push(zip)
+    },
+    addIdcard () {
+      let idcard = {
+        id: this.items.length + 1,
+        type: 'idcard',
+        itemName: '身份证号',
+        constrait: {
+        }
+      }
+      this.items.push(idcard)
     },
     deleteThis (item) {
       let index = this.items.indexOf(item)
@@ -207,25 +268,23 @@ export default {
         this.items[i].id--
       }
     },
-    handleClose (done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done()
-        })
-        .catch(_ => {})
+    childByValue (arg) {
+      // console.log(arg.item)
+      arg.item.constrait = arg.constrait
+      // console.log(this.items)
     },
-    constrait (item) {
-      this.dialogItem = item
-      this.dialogVisible = true
-      switch (item.type) {
-        case 'text':
-          console.log('set constraits to text')
-          break
-        case 'number':
-          console.log('set constraits to number')
-          break
-      }
-    },
+    // constrait (item) {
+    //   this.dialogItem = item
+    //   this.dialogVisible = true
+    //   switch (item.type) {
+    //     case 'text':
+    //       console.log('set constraits to text')
+    //       break
+    //     case 'number':
+    //       console.log('set constraits to number')
+    //       break
+    //   }
+    // },
     getConstrait () {
       this.dialogVisible = false
       let item = this.dialogItem
@@ -332,7 +391,8 @@ export default {
       let ipc = Electron.ipcRenderer
       ipc.send('editpage-chooseformat')
       ipc.on('editpage-getformat', (e, d) => {
-        this.formatFile = d[0]
+        let formatArr = d[0].split('\\')
+        this.formatFile = formatArr[formatArr.length - 1]
         GlobalData.setEditFile(this.formatFile)
         this.setFormatView()
       })
@@ -359,6 +419,11 @@ export default {
 </script>
 
 <style>
+  .align-center {
+    -webkit-margin-before: 0 !important;
+    -webkit-margin-after: 0 !important;
+    line-height: 60px;
+  }
   .el-header, .el-footer {
     background-color: #B3C0D1;
     color: #333;
@@ -377,36 +442,40 @@ export default {
     /* line-height: 160px; */
   }
 
- .mainContent {
+  .mainContent {
     /* margin: auto; */
     text-align: center;
     background-color: #99CCFF;
     padding: 0;
     display: block;
- }
- .el-icon-circle-plus-outline{
-   text-align: center;
-   margin: 12px;
- }
- .newitem{
-   background-color: #B3C0D1;
-   padding: 10px 0;
- }
- .mainContainer {
-   max-height: 100vh;
- }
- .item{
+  }
+  .el-icon-circle-plus-outline{
+    text-align: center;
+    margin: 12px;
+  }
+  .newitem{
+    background-color: #B3C0D1;
+    padding: 10px 0;
+  }
+  .mainContainer {
+    max-height: 100vh;
+  }
+  .item{
    margin-bottom: 7px;
- }
- .itemName{
-   width: 150px;
- }
- .item p{
-   width: 150px;
-   margin: 0;
-   padding: 10px 5px 10px 5px;
- }
- .item i{
-  margin: 10px;
- }
+  }
+  .itemName{
+    width: 150px;
+  }
+  .item p{
+    width: 150px;
+    margin: 0;
+    padding: 10px 5px 10px 5px;
+  }
+  .item i{
+    /* margin: 10px; */
+  }
+  body{
+    margin: 0;
+    background-color: beige;
+  }
 </style>

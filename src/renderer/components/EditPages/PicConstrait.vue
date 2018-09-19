@@ -1,21 +1,21 @@
 <template>
-  <div>
-    <el-row>
-      <el-col :span="12"><p>宽度</p></el-col>
-      <el-col :span="12">
-        <el-input-number v-model="width" :min="1" :max="150" label="图片宽度"></el-input-number>
+  <div class="picContrait">
+    <el-row style="margin: 0; background-color: #B3C0D1; padding: 2px 0px;">设定限制条件</el-row>
+    <el-row style="margin-top: 4px;">
+      <el-col :span="8"><p>允许文件格式</p></el-col>
+      <el-col :span="16">
+        <el-checkbox-group v-model="checkList" style="line-height: 39px;">
+          <el-checkbox label="jpg"></el-checkbox>
+          <el-checkbox label="png"></el-checkbox>
+          <el-checkbox label="gif"></el-checkbox>
+        </el-checkbox-group>
       </el-col>
     </el-row>
     <el-row>
-      <el-col :span="12"><p>高度</p></el-col>
-      <el-col :span="12">
-        <el-input-number v-model="height" :min="1" :max="500" label="图片高度"></el-input-number>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="12"><p>文件大小</p></el-col>
-      <el-col :span="12">
-        <el-input-number v-model="height" :min="1" :max="150" label="图片高度"></el-input-number>
+      <el-col :span="8"><p>文件大小限制</p></el-col>
+      <el-col :span="16">
+        <el-input-number size="medium" v-model="max" :min="1" :step="5" :max="50" label="用于限制用户输入文本的最大值"></el-input-number>
+        MB      
       </el-col>
     </el-row>
   </div>
@@ -25,14 +25,41 @@
 export default {
   data () {
     return {
-      width: 100,
-      height: 300,
-      size: 2
+      checkList: [],
+      max: 50
+    }
+  },
+  props: [
+    'item'
+  ],
+  watch: {
+    checkList: function () {
+      let data = {
+        constrait: {
+          checkList: this.checkList,
+          max: this.max
+        },
+        item: this.item
+      }
+      this.$emit('childByValue', data)
+    },
+    max: function () {
+      let data = {
+        constrait: {
+          checkList: this.checkList,
+          max: this.max
+        },
+        item: this.item
+      }
+      this.$emit('childByValue', data)
     }
   }
 }
 </script>
 
 <style>
-
+.picContrait {
+  background-color:azure;
+  padding-bottom: 5px;  
+}
 </style>
