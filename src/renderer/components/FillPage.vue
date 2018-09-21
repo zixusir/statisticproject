@@ -379,14 +379,37 @@ export default {
           Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'email':
+          warn = []
+          let emailReg = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/
+          if (!emailReg.test(item.value)) warn.push('请输入正确的邮箱地址')
+          newItem = item
+          newItem.warn = warn
+          Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'longtext':
+          warn = []
+          if (item.value.length > item.constrait.num) warn.push(`段落长度不超${item.constrait.num}字`)
+          newItem = item
+          newItem.warn = warn
+          Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'pic':
           break
         case 'zip':
+          warn = []
+          let zipReg = /^\d{6}$/
+          if (!zipReg.test(item.value)) warn.push(`请输入6位邮政编码`)
+          newItem = item
+          newItem.warn = warn
+          Vue.set(this.items, this.items.indexOf(item), newItem)
           break
         case 'idcard':
+          warn = []
+          let idcardReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
+          if (!idcardReg.test(item.value)) warn.push('请输入15或18位身份证号码，最后一位为x请用X或x替代')
+          newItem = item
+          newItem.warn = warn
+          Vue.set(this.items, this.items.indexOf(item), newItem)
           break
       }
     }

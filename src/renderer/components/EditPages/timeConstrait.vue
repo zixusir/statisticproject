@@ -2,7 +2,7 @@
   <div class="timeContrait">
     <el-row style="margin: 0; background-color: #B3C0D1; padding: 2px 0px;">设定限制条件</el-row>
     <el-row style="margin-top: 4px;">
-      <el-col :span="8"><p>时间范围</p></el-col>
+      <el-col :span="8"><p>{{showMin}}</p></el-col>
       <el-col :span="16"
         style="line-height: 39px;">
         <el-time-picker
@@ -14,7 +14,7 @@
       </el-col>
     </el-row>
     <el-row>
-      <el-col :span="8"><p>时间范围</p></el-col>
+      <el-col :span="8"><p>{{showMax}}</p></el-col>
       <el-col :span="16"
         style="line-height: 39px;">
         <el-time-picker
@@ -39,6 +39,22 @@ export default {
   props: [
     'item'
   ],
+  created: function () {
+    // let taftertemp = new Date(this.item.constrait.tafter)
+    // let tbeforetemp = new Date(this.item.constrait.tbefore)
+    // this.tafter = taftertemp
+    // this.tbefore = tbeforetemp
+  },
+  computed: {
+    showMin: function () {
+      let mintemp = new Date(this.item.constrait.tafter)
+      return mintemp.toTimeString().split(' ')[0]
+    },
+    showMax: function () {
+      let maxtemp = new Date(this.item.constrait.tbefore)
+      return maxtemp.toTimeString().split(' ')[0]
+    }
+  },
   watch: {
     tafter: function () {
       let data = {

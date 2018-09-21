@@ -25,6 +25,9 @@ export default {
   props: [
     'item'
   ],
+  created: function () {
+    this.num = this.item.constrait.num
+  },
   watch: {
     num: function () {
       let data = {

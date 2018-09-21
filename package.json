@@ -55,7 +55,6 @@
   "dependencies": {
     "axios": "^0.16.1",
     "bootstrap-table": "^1.12.1",
-    "electron-rebuild": "^1.8.2",
     "element-ui": "^2.4.5",
     "jquery": "^3.3.1",
     "koa": "^2.5.3",
@@ -73,6 +72,7 @@
     "xlsx": "^0.13.3"
   },
   "devDependencies": {
+    "electron-rebuild": "^1.8.2",
     "babel-core": "^6.25.0",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",

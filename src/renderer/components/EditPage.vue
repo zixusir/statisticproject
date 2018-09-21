@@ -210,11 +210,18 @@ export default {
       this.items.push(date)
     },
     addTime () {
+      let start = new Date()
+      start.setHours(0, 0, 0)
+      let end = new Date()
+      end.setHours(23, 59, 59)
       let time = {
         id: this.items.length + 1,
         type: 'time',
         itemName: '时间',
-        constrait: '无约束'
+        constrait: {
+          tafter: start,
+          tbefore: end
+        }
       }
       this.items.push(time)
     },

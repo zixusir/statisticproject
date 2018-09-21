@@ -14,7 +14,7 @@
     <el-row>
       <el-col :span="8"><p>文件大小限制</p></el-col>
       <el-col :span="16">
-        <el-input-number size="medium" v-model="max" :min="1" :step="5" :max="50" label="用于限制用户输入文本的最大值"></el-input-number>
+        <el-input-number size="medium" v-model="max" :min="1" :step="1" :max="10" label="用于限制用户输入文本的最大值"></el-input-number>
         MB      
       </el-col>
     </el-row>
@@ -25,8 +25,8 @@
 export default {
   data () {
     return {
-      checkList: [],
-      max: 50
+      checkList: ['jpg'],
+      max: 10
     }
   },
   props: [
