@@ -89,7 +89,7 @@
 
     <el-footer style="height: initial; padding: 0;">
       <el-container class="center mainContent">
-        <div>
+        <div style="width: 100%;">
           <div class="el-icon-circle-plus-outline"></div>
           <div class="newitem">
             <el-row>
