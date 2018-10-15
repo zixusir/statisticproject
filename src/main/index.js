@@ -183,6 +183,23 @@ app.on('activate', () => {
 */
 const fileDialog = dialog
 const ipc = ipcMain
+/**
+ * 配合homepage的主进程
+ */
+ipc.on('homepage-findsta', e => {
+  DataBase.findSta().then(
+    content => {
+      if (content.length && content.length > 0) {
+        let staNames = []
+        content.forEach((each) => {
+          staNames.push(each.name)
+        })
+        // console.log(staNames)
+        e.sender.send('homepage-getsta', staNames)
+      }
+    }
+  )
+})
 
 ipc.on('open-file-dialog', (e) => {
   console.log('start choose')
@@ -220,8 +237,9 @@ ipc.on('editpage-chooseformat', (e) => {
   })
   console.log(e)
 })
-ipc.on('editpage-newdatabase', (e, arg) => {
+ipc.on('editpage-newdatabase', (e, arg, staContent) => {
   DataBase.init(arg)
+  DataBase.addSta(arg, staContent)
 })
 
 /**

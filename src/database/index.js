@@ -3,11 +3,19 @@ import DataStore from 'nedb'
 import Fs from 'fs'
 
 let dbs = []
-let dataFilePath = __dirname
+let sta
+let dataFilePath = PATH.join(__static, 'dbs')
 /*
 * skanDatabase() 程序开始后扫描数据库文件
 */
 let skanDatabase = function () {
+  // 装在sta数据库
+  sta = new DataStore({
+    filename: PATH.join(__static, 'sta.db'),
+    autoload: true
+  })
+  console.log(sta.filename)
+
   Fs.readdir(dataFilePath, (e, f) => {
     if (e) {
       console.log('数据库扫描失败')
@@ -18,7 +26,7 @@ let skanDatabase = function () {
         if (ext === 'db') {
           // let db = DataStore.load(PATH.join(__dirname, eachFile + '.db'))
           let db = new DataStore({
-            filename: PATH.join(__dirname, eachFile),
+            filename: PATH.join(dataFilePath, eachFile),
             autoload: true
           })
           db.name = str[0]
@@ -36,7 +44,7 @@ let skanDatabase = function () {
 let init = function (str) {
   let db
   db = new DataStore({
-    filename: PATH.join(__dirname, str + '.db'),
+    filename: PATH.join(dataFilePath, str + '.db'),
     autoload: true
   })
   console.log('___init Database!___')
@@ -94,6 +102,29 @@ let findDocs = function (databaseName) {
   })
 }
 
+/**
+ * STA数据库相关操作
+ */
+let findSta = function () {
+  return new Promise((resolve, reject) => {
+    sta.find({}, (err, content) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(content)
+      }
+    })
+  })
+}
+
+let addSta = function (name, staContent) {
+  let insertData = {
+    name: name,
+    staContent: staContent
+  }
+  sta.insert(insertData)
+}
+
 export default {
   init,
   skanDatabase,
@@ -101,5 +132,7 @@ export default {
   del,
   find,
   change,
-  findCollection
+  findCollection,
+  findSta,
+  addSta
 }

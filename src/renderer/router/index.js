@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import HomePage from '@/components/HomePage'
 import FillPage from '@/components/FillPage'
 import EditPage from '@/components/EditPage'
 import SheetPage from '@/components/SheetPage'
@@ -12,7 +13,7 @@ export default new Router({
     {
       path: '/',
       name: 'homepage',
-      component: EditPage
+      component: HomePage
     },
     {
       path: '/fillpage',

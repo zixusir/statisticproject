@@ -1,10 +1,24 @@
 <template>
   <el-container class="mainContainer">
     <el-header class="header">
-      <el-row :gutter="20">
+      <el-row :gutter="0">
+        <el-col :span="1">
+          <i class="el-icon-plus" v-on:click="newEdit()" style="font-size: 15pt">
+            <div style="font-size: 7pt;">新建</div>
+          </i>
+        </el-col>
+        <el-col :span="1">
+          <i class="el-icon-news" v-on:click="chooseEdit()" style="font-size: 15pt">
+            <div style="font-size: 7pt;">选择</div>
+          </i>
+        </el-col>
         <el-col :span="4" class="align-center">当前:{{this.formatFile}}</el-col>
-        <el-col :span="16"><p style="font-size: 20px; padding: 0 20px;" class="align-center">修改统计项目</p></el-col>
-        <el-col :span="4"><i class="el-icon-check" v-on:click="save()" style="float: right;"></i></el-col>
+        <el-col :span="12"><p style="font-size: 20px; padding: 0 20px;" class="align-center">修改统计项目</p></el-col>
+        <el-col :span="6">
+          <i class="el-icon-check" v-on:click="save()" style="font-size: 15pt; float: right;">
+            <div style="font-size: 7pt;">保存</div>
+          </i>
+        </el-col>
       </el-row>
     </el-header>
 
@@ -307,6 +321,12 @@ export default {
         message: h('i', {style: 'color: teal'}, str)
       })
     },
+    /**
+     * 新建一个统计
+     */
+    newEdit () {
+      // 1.清空当前items
+    },
     /*
     * save() 保存
     */
@@ -336,7 +356,7 @@ export default {
               message: h('i', {style: 'color: teal'}, '文件保存错误')
             })
           } else {
-            ipc.send('editpage-newdatabase', this.formatName)
+            ipc.send('editpage-newdatabase', this.formatName, this.items)
             this.saveDialog = false
             this.$notify({
               title: '成功',
@@ -433,7 +453,7 @@ export default {
     /* line-height: 60px; */
   }
   .header i {
-    padding: 20px;
+    padding: 15px;
   }
   .el-main {
     background-color: #E9EEF3;

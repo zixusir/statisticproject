@@ -1,0 +1,1 @@
+{"name":"33","staContent":[{"constrait":{"lang":"mix","max":20,"min":0},"id":1,"itemName":"文本","type":"text"},{"constrait":{"max":100,"min":1},"id":2,"itemName":"数字","type":"num"},{"constrait":{},"id":3,"itemName":"百分数","type":"percent"}],"_id":"6F2epmKd5jFH6GXS"}
