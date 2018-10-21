@@ -1,0 +1,1 @@
+[{"id":1,"type":"text","itemName":"文本","constrait":{"min":0,"max":20,"lang":"mix"}},{"id":2,"type":"num","itemName":"数字","constrait":{"min":1,"max":100}},{"id":3,"type":"num","itemName":"数字","constrait":{"min":1,"max":100}},{"id":4,"type":"num","itemName":"数字","constrait":{"min":1,"max":100}},{"id":5,"type":"num","itemName":"数字","constrait":{"min":1,"max":100}}]

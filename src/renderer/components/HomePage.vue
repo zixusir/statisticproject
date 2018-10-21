@@ -8,13 +8,22 @@
       display: flex;
       align-items: center;
       align-content: center;">
-      <div style="background-color: red; width: 300px; height: 300px; margin: auto">
-        <table>
-          <tr v-for="item in staItems" :key="item.id">
-            <td></td>
-            <td>编辑</td>
-            <td>统计</td>
-            <td>汇总</td>
+      <div style="background-color: green; width: 300px; height: 400px; margin: auto">
+        <p style="font-size: 25px">选择你的操作</p>
+        <router-link to="/">新建一个统计</router-link>
+        <p style="font-size: 25px">或者</p>
+        <table style="width: 100%; padding-left: 15px; padding-right: 15px;">
+          <tr v-for="item in staItems" :key="item.id" style="width: 100%">
+            <td>{{item}}</td>
+            <td>
+              <router-link :to="{name: 'editpage', params: {data: item}}">编辑</router-link>
+            </td>
+            <td>
+              <router-link :to="{name: 'fillpage', params: {data: item}}">统计</router-link>
+            </td>
+            <td>
+              <router-link :to="{name: 'sheetpage', params: {data: item}}">汇总</router-link>
+            </td>
           </tr>
         </table>
       </div>
@@ -38,7 +47,8 @@ export default {
     let ipc = Electron.ipcRenderer
     ipc.send('homepage-findsta')
     ipc.on('homepage-getsta', (e, d) => {
-      console.log(d)
+      // console.log(d)
+      this.staItems = d
     })
   }
 }
