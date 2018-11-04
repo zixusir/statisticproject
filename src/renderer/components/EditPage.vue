@@ -159,13 +159,27 @@ export default {
     langtextConstrait
   },
   created () {
-    if (GlobalData.state.newEdit) {
-      if (this.formatFile === '') this.fileChooseDialog = true
-      console.log('创建新的工作文件')
+    // if (GlobalData.state.newEdit) {
+    //   if (this.formatFile === '') this.fileChooseDialog = true
+    //   console.log('创建新的工作文件')
+    // } else {
+    //   this.formatFile = GlobalData.state.editFile
+    //   this.setFormatView()
+    //   console.log('使用当前工作文件：' + this.formatFile)
+    // }
+    // if (GlobalData.state.currentFile && GlobalData.state.currentFile !== '') {
+
+    // }
+    // console.log(this.$route.params)
+    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
+      // console.log(this.$route.params.datafile)
+      let ipc = Electron.ipcRenderer
+      ipc.send('editpage-findsta')
+      ipc.on('editpage-getsta', (event, data) => {
+        console.log(data)
+      })
     } else {
-      this.formatFile = GlobalData.state.editFile
-      this.setFormatView()
-      console.log('使用当前工作文件：' + this.formatFile)
+      console.log('we find nothing')
     }
   },
   methods: {

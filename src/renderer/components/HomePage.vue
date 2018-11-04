@@ -16,13 +16,13 @@
           <tr v-for="item in staItems" :key="item.id" style="width: 100%">
             <td>{{item}}</td>
             <td>
-              <router-link :to="{name: 'editpage', params: {data: item}}">编辑</router-link>
+              <router-link :to="{name: 'editpage', params: {datafile: item}}">编辑</router-link>
             </td>
             <td>
-              <router-link :to="{name: 'fillpage', params: {data: item}}">统计</router-link>
+              <router-link :to="{name: 'fillpage', params: {file: item}}">统计</router-link>
             </td>
             <td>
-              <router-link :to="{name: 'sheetpage', params: {data: item}}">汇总</router-link>
+              <router-link :to="{name: 'sheetpage', params: {file: item}}">汇总</router-link>
             </td>
           </tr>
         </table>
