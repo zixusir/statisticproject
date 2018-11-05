@@ -1,5 +1,15 @@
+let state = {
+  currentFile: '',
+  netFile: '',
+  newNet: true,
+  netData: ['test']
+}
+
+let setNetFile = function (newFile) {
+  state.netFile = newFile
+  state.newNet = false
+}
 export default {
-  color_blue: '#99CCFF',
-  color_white: '#ffffff',
-  color_dblue: '#336699'
+  state,
+  setNetFile
 }
