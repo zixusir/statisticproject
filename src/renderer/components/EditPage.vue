@@ -136,7 +136,7 @@ import picConstrait from '@/components/EditPages/PicConstrait'
 import dateConstrait from '@/components/EditPages/dateConstrait'
 import timeConstrait from '@/components/EditPages/timeConstrait'
 import langtextConstrait from '@/components/EditPages/langtextConstrait'
-import GlobalData from '@/components/GlobalData'
+import GlobalData from '@/configData'
 export default {
   data () {
     return {
@@ -180,6 +180,7 @@ export default {
         console.log(`come back to render`)
         console.log(data)
         this.items = data[0].staContent
+        GlobalData.setCurrentFile(data[0].name)
       })
     } else {
       console.log('we find nothing')
