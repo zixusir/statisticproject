@@ -117,6 +117,18 @@ let findSta = function () {
   })
 }
 
+let findStaByName = function (staName) {
+  return new Promise((resolve, reject) => {
+    sta.find({name: staName}, (err, content) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(content)
+      }
+    })
+  })
+}
+
 let addSta = function (name, staContent) {
   let insertData = {
     name: name,
@@ -134,5 +146,6 @@ export default {
   change,
   findCollection,
   findSta,
+  findStaByName,
   addSta
 }

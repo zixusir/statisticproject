@@ -220,6 +220,16 @@ ipc.on('open-file-dialog', (e) => {
 /*
 * 配合editpage的主进程
 */
+ipc.on('editpage-findsta', (e, arg1) => {
+  console.log(`editpage main process get${arg1}`)
+  // 从数据库提取sta数据
+  DataBase.findStaByName(arg1).then(
+    (content) => {
+      console.log(`the value get from database is ${content}`)
+      e.sender.send('editpage-getsta', content)
+    }
+  )
+})
 ipc.on('editpage-chooseformat', (e) => {
   let appPath = app.getAppPath()
   fileDialog.showOpenDialog({
