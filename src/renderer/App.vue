@@ -15,7 +15,7 @@
             <span slot="title">编辑表</span>
           </el-menu-item>
         </router-link>
-        <router-link :to="{name: 'fillpage'}">
+        <router-link :to="{name: 'fillpage', params: {datafile: Global.state.currentFile}}">
           <el-menu-item index="3">           
             <i class="el-icon-edit"></i>
             <span slot="title">填表</span>
@@ -40,12 +40,18 @@
 </template>
 
 <script>
+  import GlobalData from '@/configData'
   export default {
     name: 'statistic',
     data () {
       return {
-        isCollapse: true
+        isCollapse: true,
+        Global: null
       }
+    },
+    created: function () {
+      // console.log(GlobalData.state)
+      this.Global = GlobalData
     },
     methods: {
       handleOpen (key, keyPath) {

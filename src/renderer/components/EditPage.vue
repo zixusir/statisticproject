@@ -172,13 +172,14 @@ export default {
     // }
     // console.log(this.$route.params)
     if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
-      // console.log(this.$route.params.datafile)
+      console.log('正在渲染……')
+      console.log(this.$route.params.datafile)
       let staName = this.$route.params.datafile
       let ipc = Electron.ipcRenderer
       ipc.send('editpage-findsta', staName)
       ipc.on('editpage-getsta', (event, data) => {
-        console.log(`come back to render`)
-        console.log(data)
+        // console.log(`come back to render`)
+        // console.log(data)
         this.items = data[0].staContent
         GlobalData.setCurrentFile(data[0].name)
       })
