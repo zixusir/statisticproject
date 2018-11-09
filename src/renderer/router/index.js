@@ -21,7 +21,7 @@ export default new Router({
       component: FillPage
     },
     {
-      path: '/editpage:datafile',
+      path: '/editpage/:datafile?',
       name: 'editpage',
       component: EditPage
     },

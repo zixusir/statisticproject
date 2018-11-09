@@ -75,15 +75,16 @@
         </el-row>
       </el-container>
       <el-dialog
-        title="选择文件"
-        :visible.sync="fileChooseDialog"
+        title="输入统计名称"
+        :visible.sync="newFileDialog"
         :show-close=false
         :close-on-press-escape=false
         width="50%">
         <span>
-          <div >
-            <el-button type="primary" v-on:click="newFormat()">新建一个表</el-button>
-            <el-button type="primary" v-on:click="chooseFormat()">修改现有表</el-button>
+          <div style="display: flex;">
+            <span>名称</span>
+            <el-input v-model="fileName" width="300px"></el-input>
+            <el-button type="primary" v-on:click="createNewFile()">新建</el-button>
           </div>
         </span>
       </el-dialog>
@@ -94,7 +95,7 @@
         width="50%">
         <span>
           <div>
-            <el-input v-model="formatName" width="50%"></el-input>
+            <el-input v-model="fileName" width="50%"></el-input>
             <el-button type="primary" v-on:click="confirmSave()">确认保存</el-button>
           </div> 
         </span>
@@ -137,6 +138,7 @@ import dateConstrait from '@/components/EditPages/dateConstrait'
 import timeConstrait from '@/components/EditPages/timeConstrait'
 import langtextConstrait from '@/components/EditPages/langtextConstrait'
 import GlobalData from '@/configData'
+import DataBase from '../../database/index'
 export default {
   data () {
     return {
@@ -144,10 +146,10 @@ export default {
       items: [],
       dialogVisible: false,
       dialogItem: null,
-      fileChooseDialog: false,
+      newFileDialog: false,
       formatFile: '',
       saveDialog: false,
-      formatName: ''
+      fileName: ''
     }
   },
   components: {
@@ -159,18 +161,6 @@ export default {
     langtextConstrait
   },
   created () {
-    // if (GlobalData.state.newEdit) {
-    //   if (this.formatFile === '') this.fileChooseDialog = true
-    //   console.log('创建新的工作文件')
-    // } else {
-    //   this.formatFile = GlobalData.state.editFile
-    //   this.setFormatView()
-    //   console.log('使用当前工作文件：' + this.formatFile)
-    // }
-    // if (GlobalData.state.currentFile && GlobalData.state.currentFile !== '') {
-
-    // }
-    // console.log(this.$route.params)
     if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
       console.log('正在渲染……')
       console.log(this.$route.params.datafile)
@@ -178,12 +168,13 @@ export default {
       let ipc = Electron.ipcRenderer
       ipc.send('editpage-findsta', staName)
       ipc.on('editpage-getsta', (event, data) => {
-        // console.log(`come back to render`)
-        // console.log(data)
         this.items = data[0].staContent
         GlobalData.setCurrentFile(data[0].name)
       })
     } else {
+      // 如果路径上没有指明文件，就新建一个
+      this.items = []
+      this.newFileDialog = true
       console.log('we find nothing')
     }
   },
@@ -345,6 +336,28 @@ export default {
      */
     newEdit () {
       // 1.清空当前items
+      this.items = []
+      this.newFileDialog = true
+    },
+    createNewFile () {
+      let ipc = Electron.ipcRenderer
+      console.log(DataBase)
+      // 通知数据库
+      if (this.fileName) {
+        ipc.send('editpage-newdatabase', this.fileName, [])
+        ipc.on('editpage-newdbback', (event, backcode) => {
+          console.log(`the backcode is ${backcode}`)
+          if (backcode === 0) {
+            this.$message({
+              message: '已存在相同名称的统计数据库',
+              type: 'warning'
+            })
+          } else {
+            this.newFileDialog = false
+          }
+        })
+      }
+      // 配置configData
     },
     /*
     * save() 保存
@@ -357,7 +370,7 @@ export default {
     */
     confirmSave () {
       let ipc = Electron.ipcRenderer
-      if (this.formatName === '') {
+      if (this.fileName === '') {
         this.$message({message: '没有定义文件名', type: 'warning'})
       } else {
         console.log('保存文件')
@@ -366,7 +379,7 @@ export default {
           title: '提示',
           message: h('i', {style: 'color: teal'}, '正在保存')
         })
-        let filePath = path.join('./', this.formatName + '.sta')
+        let filePath = path.join('./', this.fileName + '.sta')
         fs.writeFile(filePath, JSON.stringify(this.items), (err) => {
           if (err) {
             this.$notify({
@@ -375,7 +388,7 @@ export default {
               message: h('i', {style: 'color: teal'}, '文件保存错误')
             })
           } else {
-            ipc.send('editpage-newdatabase', this.formatName, this.items)
+            ipc.send('editpage-newdatabase', this.fileName, this.items)
             this.saveDialog = false
             this.$notify({
               title: '成功',

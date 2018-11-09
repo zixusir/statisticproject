@@ -129,12 +129,24 @@ let findStaByName = function (staName) {
   })
 }
 
+// 插入一条sta记录
 let addSta = function (name, staContent) {
   let insertData = {
     name: name,
     staContent: staContent
   }
-  sta.insert(insertData)
+  return new Promise((resolve, reject) => {
+    sta.find({name: name}, (err, content) => {
+      if (err || content.length > 0) {
+        let str = 'existing'
+        reject(str)
+      } else {
+        sta.insert(insertData)
+        let str = 'ok'
+        resolve(str)
+      }
+    })
+  })
 }
 
 export default {

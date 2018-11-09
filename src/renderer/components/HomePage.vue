@@ -10,7 +10,7 @@
       align-content: center;">
       <div style="background-color: green; width: 300px; height: 400px; margin: auto">
         <p style="font-size: 25px">选择你的操作</p>
-        <router-link to="/">新建一个统计</router-link>
+        <router-link :to="{name: 'editpage'}">新建一个统计</router-link>
         <p style="font-size: 25px">或者</p>
         <table style="width: 100%; padding-left: 15px; padding-right: 15px;">
           <tr v-for="item in staItems" :key="item.id" style="width: 100%">

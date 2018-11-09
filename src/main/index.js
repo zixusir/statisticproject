@@ -249,7 +249,13 @@ ipc.on('editpage-chooseformat', (e) => {
 })
 ipc.on('editpage-newdatabase', (e, arg, staContent) => {
   DataBase.init(arg)
-  DataBase.addSta(arg, staContent)
+  DataBase.addSta(arg, staContent).then((resolveMsg, rejectMsg) => {
+    if (resolveMsg) {
+      e.sender.send('editpage-newdbback', 1)
+    } else {
+      e.sender.send('editpage-newdbback', 0)
+    }
+  })
 })
 
 /**
