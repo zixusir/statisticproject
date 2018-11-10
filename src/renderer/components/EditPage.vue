@@ -81,9 +81,9 @@
         :close-on-press-escape=false
         width="50%">
         <span>
-          <div style="display: flex;">
-            <span>名称</span>
-            <el-input v-model="fileName" width="300px"></el-input>
+          <div style="display: flex; justify-content: center;">
+            <span style="line-height: 40px">名称</span>
+            <el-input v-model="fileName" style="width: 300px;padding-left: 20px; padding-right: 20px;"></el-input>
             <el-button type="primary" v-on:click="createNewFile()">新建</el-button>
           </div>
         </span>
@@ -138,7 +138,7 @@ import dateConstrait from '@/components/EditPages/dateConstrait'
 import timeConstrait from '@/components/EditPages/timeConstrait'
 import langtextConstrait from '@/components/EditPages/langtextConstrait'
 import GlobalData from '@/configData'
-import DataBase from '../../database/index'
+// import DataBase from '../../database/index'
 export default {
   data () {
     return {
@@ -341,7 +341,7 @@ export default {
     },
     createNewFile () {
       let ipc = Electron.ipcRenderer
-      console.log(DataBase)
+      // console.log(DataBase)
       // 通知数据库
       if (this.fileName) {
         ipc.send('editpage-newdatabase', this.fileName, [])

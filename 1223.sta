@@ -1,1 +1,0 @@
-[{"id":1,"type":"num","itemName":"数字","constrait":{"length":1,"min":0,"max":100000}},{"id":2,"type":"date","itemName":"日期","constrait":"无约束"}]
