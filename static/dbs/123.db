@@ -1,0 +1,1 @@
+{"content":[{"constrait":{"lang":"mix","max":20,"min":0},"id":1,"itemName":"文本","type":"text","value":"1234","warn":[]},{"constrait":{"max":100,"min":1},"id":2,"itemName":"数字","type":"num","value":"12","warn":[]},{"constrait":{},"id":3,"itemName":"百分数","type":"percent","value":"12","warn":[]}],"_id":"CWyug0SOVVTX2uKN"}

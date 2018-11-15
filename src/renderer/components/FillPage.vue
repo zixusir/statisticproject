@@ -1,13 +1,18 @@
 <template>
   <el-container>
-    <el-header>
-      <el-row>
-        <el-col :span="4" class="align-center">当前：{{this.fileName}}</el-col>
-        <el-col :span="16">
-          <p style="font-size: 20px; padding: 0 20px;" class="align-center">填表</p>
+    <el-header class="header">
+      <el-row :gutter="0">
+        <el-col :span="2">
+          <i class="el-icon-news" v-on:click="chooseFillFile()" style="font-size: 15pt">
+            <div style="font-size: 7pt;">选择</div>
+          </i>
         </el-col>
-        <el-col :span="4">
-          <i class="el-icon-check" style="float: right; padding: 20px;" v-on:click="formSubmit()"></i>
+        <el-col :span="4" class="align-center">当前:{{this.fileName}}</el-col>
+        <el-col :span="12"><p style="font-size: 20px; padding: 0 20px;" class="align-center">修改统计项目</p></el-col>
+        <el-col :span="6">
+          <i class="el-icon-check" v-on:click="formSubmit()" style="font-size: 15pt; float: right;">
+            <div style="font-size: 7pt;">保存</div>
+          </i>
         </el-col>
       </el-row>
     </el-header>
@@ -163,15 +168,24 @@
       </el-form>
 
       <el-dialog
-        title="选择文件"
+        title="选择统计项目"
         :visible.sync="fileChooseDialog"
         :show-close=false
         :close-on-press-escape=false
-        width="50%">
+        width="500px">
         <span>
-          <div >
-            <p>在开始之前，请选择你要填写的统计表（在文件系统中选择一个‘.sta’后缀名文件）</p>
-            <el-button type="primary" v-on:click="chooseFillFile()">选择</el-button>
+          <div style="display: flex; justify-content: center;">
+            <table style="width: 100%; padding-left: 15px; padding-right: 15px;">
+              <tr v-for="item in staItems" :key="item.id" style="width: 100%">
+                <td>{{item}}</td>
+                <td>
+                  <div v-on:click="setFillPageView(item)">
+                    <span>选择</span>
+                  </div>
+                  <!-- <router-link :to="{name: 'editpage', params: {datafile: item}}">编辑</router-link> -->
+                </td>
+              </tr>
+            </table>
           </div>
         </span>
       </el-dialog>
@@ -184,13 +198,14 @@
 import fs from 'fs'
 import Path from 'path'
 import Vue from 'vue'
-import electron from 'electron'
+import Electron from 'electron'
 import GlobalData from '@/configData'
 
 export default {
   data () {
     return {
       items: [],
+      staItems: [],
       fileChooseDialog: false,
       fileName: ''
     }
@@ -203,35 +218,13 @@ export default {
       // 设置global
       GlobalData.setCurrentFile(this.fileName)
       // 调用editpage接口获取sta内容
-      let ipc = electron.ipcRenderer
+      let ipc = Electron.ipcRenderer
       ipc.send('editpage-findsta', this.fileName)
       ipc.on('editpage-getsta', (event, data) => {
-        console.log(data)
+        // console.log(1)
         this.items = data[0].staContent
       })
     }
-    // if (GlobalData.state.fillFile === '') {
-    //   this.fileChooseDialog = true
-    // } else {
-    //   console.log(GlobalData.state.fillFile)
-    //   this.fillFile = GlobalData.state.fillFile
-    //   let filePath = Path.join('./', GlobalData.state.fillFile)
-    //   fs.readFile(filePath, 'utf-8', (err, data) => {
-    //     if (err) {
-    //       this.notice('error', '读取文件失败')
-    //     } else {
-    //       this.notice('info', '请稍等，正在读取文件')
-    //       let temp = JSON.parse(data)
-    //       temp.forEach(item => {
-    //         item.value = ''
-    //         if (item.type === 'pic') {
-    //           item.value = 'src\\renderer\\assets\\images\\81f937cegw1f34qco2koaj20xc0wsk52.jpg'
-    //         }
-    //       })
-    //       this.items = temp
-    //     }
-    //   })
-    // }
   },
   methods: {
     notice (type, str) {
@@ -251,7 +244,7 @@ export default {
       }
     },
     chooseFile (item) {
-      let ipc = electron.ipcRenderer
+      let ipc = Electron.ipcRenderer
       let _path = Path
       let _this = this
       ipc.send('open-file-dialog')
@@ -273,46 +266,46 @@ export default {
     formSubmit () {
       console.log('提交')
       console.log(this.items)
-      let ipc = electron.ipcRenderer
-      ipc.send('fillpage-insertdata', this.fileName.split('.')[0], this.items)
+      let ipc = Electron.ipcRenderer
+      let saveItems = []
+      this.items.forEach(element => {
+        saveItems.push({
+          itemName: element.itemName,
+          type: element.type,
+          value: element.value
+        })
+      })
+      ipc.send('fillpage-insertdata', this.fileName, saveItems)
     },
     /**
      * chooseFillFile() 选择一个填写文件
      */
     chooseFillFile () {
-      let ipc = electron.ipcRenderer
-      ipc.send('fillpage-choosefillfile')
-      ipc.on('fillpage-getfillfile', (e, d) => {
-        console.log(d[0])
-        let fileNameArr = d[0].split('\\')
-        this.fileName = fileNameArr[fileNameArr.length - 1]
-        GlobalData.setFillFile(this.fileName)
-        this.setFillPageView()
+      this.fileChooseDialog = true
+      let ipc = Electron.ipcRenderer
+      // 借用homepage的api
+      ipc.send('homepage-findsta')
+      ipc.on('homepage-getsta', (e, d) => {
+        // console.log(d)
+        this.staItems = d
       })
     },
     /**
      * setFillPageView() 触发视图更改
      */
-    setFillPageView () {
+    setFillPageView (item) {
       if (this.fileName !== '') {
-        fs.readFile(this.fileName, 'utf-8', (err, data) => {
-          if (err) {
-            this.$message.error('读取格式文件失败')
-          } else {
-            this.$message({
-              message: '正在使用' + this.fileName,
-              type: 'sucess'
-            })
-            this.items = JSON.parse(data)
-            this.items.forEach(each => {
-              each.item = null
-            })
-            this.fileChooseDialog = false
-          }
+        let ipc = Electron.ipcRenderer
+        ipc.send('editpage-findsta', item)
+        ipc.on('editpage-getsta', (event, data) => {
+          // console.log(2)
+          this.items = data[0].staContent
+          this.fileName = item
         })
       } else {
-        this.$message.error('读取格式文件失败')
+        this.$message.error('未给定文件名')
       }
+      this.fileChooseDialog = false
     },
     /**
      * checkInput() 验证表单输入

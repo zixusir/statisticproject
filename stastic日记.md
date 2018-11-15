@@ -68,7 +68,10 @@ if(pattern3.test(str3)){
 服务器部署
 [CSDN链接](https://blog.csdn.net/xiaoxiaoxiao_lu/article/details/75244657)
 
-
+## 对于ipc render 和 main 的理解
+ipc 在每个页面中都单独引入作为一个对象
+ipc 可以通过send方式发送事件
+ipc 可以通过on注册事件，ipc 单独存在，作为页面的全局对象
 
 
 

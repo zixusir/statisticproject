@@ -393,7 +393,7 @@ export default {
       // 借用homepage的api
       ipc.send('homepage-findsta')
       ipc.on('homepage-getsta', (e, d) => {
-        // console.log(d)
+        console.log(d)
         this.staItems = d
       })
     },
