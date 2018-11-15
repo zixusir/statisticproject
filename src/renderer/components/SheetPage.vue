@@ -40,7 +40,7 @@
 
 <script>
 import Electron from 'electron'
-import GlobalData from '@/components/GlobalData'
+import GlobalData from '@/configData'
 // import Vue from 'vue'
 // import Path from 'path'
 // import Fs from 'fs'

@@ -12,7 +12,7 @@
             <div style="font-size: 7pt;">选择</div>
           </i>
         </el-col>
-        <el-col :span="4" class="align-center">当前:{{this.formatFile}}</el-col>
+        <el-col :span="4" class="align-center">当前:{{this.fileName}}</el-col>
         <el-col :span="12"><p style="font-size: 20px; padding: 0 20px;" class="align-center">修改统计项目</p></el-col>
         <el-col :span="6">
           <i class="el-icon-check" v-on:click="save()" style="font-size: 15pt; float: right;">
@@ -74,14 +74,15 @@
           </el-col>
         </el-row>
       </el-container>
+
       <el-dialog
         title="输入统计名称"
         :visible.sync="newFileDialog"
         :show-close=false
         :close-on-press-escape=false
-        width="50%">
-        <span>
-          <div style="display: flex; justify-content: center;">
+        width="500px">
+        <span style="min-width: 500px">
+          <div style="display: flex; justify-content: center; min-width: 500px">
             <span style="line-height: 40px">名称</span>
             <el-input v-model="fileName" style="width: 300px;padding-left: 20px; padding-right: 20px;"></el-input>
             <el-button type="primary" v-on:click="createNewFile()">新建</el-button>
@@ -89,14 +90,37 @@
         </span>
       </el-dialog>
 
+      <el-dialog
+        title="选择统计项目"
+        :visible.sync="fileChooseDialog"
+        :show-close=false
+        :close-on-press-escape=false
+        width="500px">
+        <span>
+          <div style="display: flex; justify-content: center;">
+            <table style="width: 100%; padding-left: 15px; padding-right: 15px;">
+              <tr v-for="item in staItems" :key="item.id" style="width: 100%">
+                <td>{{item}}</td>
+                <td>
+                  <div v-on:click="chooseFormat(item)">
+                    <span>选择</span>
+                  </div>
+                  <!-- <router-link :to="{name: 'editpage', params: {datafile: item}}">编辑</router-link> -->
+                </td>
+              </tr>
+            </table>
+          </div>
+        </span>
+      </el-dialog>
+
       <el-dialog 
         title="保存文件名"
         :visible.sync="saveDialog"
-        width="50%">
+        width="500px">
         <span>
           <div>
             <el-input v-model="fileName" width="50%"></el-input>
-            <el-button type="primary" v-on:click="confirmSave()">确认保存</el-button>
+            <el-button type="primary" style="margin: 5px" v-on:click="confirmSave()">确认保存</el-button>
           </div> 
         </span>
       </el-dialog>
@@ -128,8 +152,8 @@
 
 <script>
 import Vue from 'vue'
-import fs from 'fs'
-import path from 'path'
+// import fs from 'fs'
+// import path from 'path'
 import Electron from 'electron'
 import textConstrait from '@/components/EditPages/TextConstrait'
 import numConstrait from '@/components/EditPages/NumConstrait'
@@ -149,7 +173,9 @@ export default {
       newFileDialog: false,
       formatFile: '',
       saveDialog: false,
-      fileName: ''
+      fileName: '',
+      fileChooseDialog: false,
+      staItems: []
     }
   },
   components: {
@@ -166,6 +192,7 @@ export default {
       console.log(this.$route.params.datafile)
       let staName = this.$route.params.datafile
       let ipc = Electron.ipcRenderer
+      this.fileName = staName
       ipc.send('editpage-findsta', staName)
       ipc.on('editpage-getsta', (event, data) => {
         this.items = data[0].staContent
@@ -354,10 +381,34 @@ export default {
             })
           } else {
             this.newFileDialog = false
+            // 配置configData
+            GlobalData.setCurrentFile(this.fileName)
           }
         })
       }
-      // 配置configData
+    },
+    chooseEdit () {
+      this.fileChooseDialog = true
+      let ipc = Electron.ipcRenderer
+      // 借用homepage的api
+      ipc.send('homepage-findsta')
+      ipc.on('homepage-getsta', (e, d) => {
+        // console.log(d)
+        this.staItems = d
+      })
+    },
+    /*
+    * chooseFormat()更改格式文件
+    */
+    chooseFormat (fileName) {
+      let ipc = Electron.ipcRenderer
+      ipc.send('editpage-findsta', fileName)
+      ipc.on('editpage-getsta', (event, data) => {
+        this.items = data[0].staContent
+        GlobalData.setCurrentFile(data[0].name)
+        this.fileName = data[0].name
+        this.fileChooseDialog = false
+      })
     },
     /*
     * save() 保存
@@ -379,22 +430,10 @@ export default {
           title: '提示',
           message: h('i', {style: 'color: teal'}, '正在保存')
         })
-        let filePath = path.join('./', this.fileName + '.sta')
-        fs.writeFile(filePath, JSON.stringify(this.items), (err) => {
-          if (err) {
-            this.$notify({
-              title: '错误',
-              duration: 1500,
-              message: h('i', {style: 'color: teal'}, '文件保存错误')
-            })
-          } else {
-            ipc.send('editpage-newdatabase', this.fileName, this.items)
+        ipc.send('editpage-updatedatabase', this.fileName, this.items)
+        ipc.on('editpage-updateback', (e, d) => {
+          if (d) {
             this.saveDialog = false
-            this.$notify({
-              title: '成功',
-              duration: 1500,
-              message: h('i', {style: 'color: teal'}, '文件保存成功在：' + filePath)
-            })
           }
         })
       }
@@ -427,43 +466,6 @@ export default {
         item1.id = id
         Vue.set(this.items, index + 1, item2)
         Vue.set(this.items, index, item1)
-      }
-    },
-    /*
-    * newFormat() 新建一个格式表
-    */
-    newFormat () {
-      this.items = []
-      this.fileChooseDialog = false
-    },
-    /*
-    * chooseFormat()更改格式文件
-    */
-    chooseFormat () {
-      let ipc = Electron.ipcRenderer
-      ipc.send('editpage-chooseformat')
-      ipc.on('editpage-getformat', (e, d) => {
-        let formatArr = d[0].split('\\')
-        this.formatFile = formatArr[formatArr.length - 1]
-        GlobalData.setEditFile(this.formatFile)
-        this.setFormatView()
-      })
-    },
-    /*
-    * setFormatView() 根据格式文件修改视图，准确的说，修改视图数据this.items
-    */
-    setFormatView () {
-      if (this.formatFile !== '') {
-        fs.readFile(this.formatFile, 'utf-8', (err, data) => {
-          if (err) {
-            this.notice('读取格式文件失败')
-          } else {
-            this.items = JSON.parse(data)
-            this.fileChooseDialog = false
-          }
-        })
-      } else {
-        this.notice('没有选择格式文件')
       }
     }
   }

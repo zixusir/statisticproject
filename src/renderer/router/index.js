@@ -16,7 +16,7 @@ export default new Router({
       component: HomePage
     },
     {
-      path: '/fillpage',
+      path: '/fillpage/:datafile?',
       name: 'fillpage',
       component: FillPage
     },
@@ -26,12 +26,12 @@ export default new Router({
       component: EditPage
     },
     {
-      path: '/sheetpage',
+      path: '/sheetpage/:datafile?',
       name: 'sheetpage',
       component: SheetPage
     },
     {
-      path: '/netpage',
+      path: '/netpage/:datafile?',
       name: 'netpage',
       component: NetPage
     }

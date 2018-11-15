@@ -2,7 +2,7 @@
   <el-container>
     <el-header>
       <el-row>
-        <el-col :span="4" class="align-center">当前：{{this.fillFile}}</el-col>
+        <el-col :span="4" class="align-center">当前：{{this.fileName}}</el-col>
         <el-col :span="16">
           <p style="font-size: 20px; padding: 0 20px;" class="align-center">填表</p>
         </el-col>
@@ -185,39 +185,53 @@ import fs from 'fs'
 import Path from 'path'
 import Vue from 'vue'
 import electron from 'electron'
-import GlobalData from '@/components/GlobalData'
+import GlobalData from '@/configData'
 
 export default {
   data () {
     return {
       items: [],
       fileChooseDialog: false,
-      fillFile: ''
+      fileName: ''
     }
   },
   created: function () {
-    if (GlobalData.state.fillFile === '') {
-      this.fileChooseDialog = true
-    } else {
-      console.log(GlobalData.state.fillFile)
-      this.fillFile = GlobalData.state.fillFile
-      let filePath = Path.join('./', GlobalData.state.fillFile)
-      fs.readFile(filePath, 'utf-8', (err, data) => {
-        if (err) {
-          this.notice('error', '读取文件失败')
-        } else {
-          this.notice('info', '请稍等，正在读取文件')
-          let temp = JSON.parse(data)
-          temp.forEach(item => {
-            item.value = ''
-            if (item.type === 'pic') {
-              item.value = 'src\\renderer\\assets\\images\\81f937cegw1f34qco2koaj20xc0wsk52.jpg'
-            }
-          })
-          this.items = temp
-        }
+    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
+      console.log('fillpage正在渲染...')
+      console.log(this.$route.params.datafile)
+      this.fileName = this.$route.params.datafile
+      // 设置global
+      GlobalData.setCurrentFile(this.fileName)
+      // 调用editpage接口获取sta内容
+      let ipc = electron.ipcRenderer
+      ipc.send('editpage-findsta', this.fileName)
+      ipc.on('editpage-getsta', (event, data) => {
+        console.log(data)
+        this.items = data[0].staContent
       })
     }
+    // if (GlobalData.state.fillFile === '') {
+    //   this.fileChooseDialog = true
+    // } else {
+    //   console.log(GlobalData.state.fillFile)
+    //   this.fillFile = GlobalData.state.fillFile
+    //   let filePath = Path.join('./', GlobalData.state.fillFile)
+    //   fs.readFile(filePath, 'utf-8', (err, data) => {
+    //     if (err) {
+    //       this.notice('error', '读取文件失败')
+    //     } else {
+    //       this.notice('info', '请稍等，正在读取文件')
+    //       let temp = JSON.parse(data)
+    //       temp.forEach(item => {
+    //         item.value = ''
+    //         if (item.type === 'pic') {
+    //           item.value = 'src\\renderer\\assets\\images\\81f937cegw1f34qco2koaj20xc0wsk52.jpg'
+    //         }
+    //       })
+    //       this.items = temp
+    //     }
+    //   })
+    // }
   },
   methods: {
     notice (type, str) {
@@ -260,7 +274,7 @@ export default {
       console.log('提交')
       console.log(this.items)
       let ipc = electron.ipcRenderer
-      ipc.send('fillpage-insertdata', this.fillFile.split('.')[0], this.items)
+      ipc.send('fillpage-insertdata', this.fileName.split('.')[0], this.items)
     },
     /**
      * chooseFillFile() 选择一个填写文件
@@ -271,8 +285,8 @@ export default {
       ipc.on('fillpage-getfillfile', (e, d) => {
         console.log(d[0])
         let fileNameArr = d[0].split('\\')
-        this.fillFile = fileNameArr[fileNameArr.length - 1]
-        GlobalData.setFillFile(this.fillFile)
+        this.fileName = fileNameArr[fileNameArr.length - 1]
+        GlobalData.setFillFile(this.fileName)
         this.setFillPageView()
       })
     },
@@ -280,13 +294,13 @@ export default {
      * setFillPageView() 触发视图更改
      */
     setFillPageView () {
-      if (this.fillFile !== '') {
-        fs.readFile(this.fillFile, 'utf-8', (err, data) => {
+      if (this.fileName !== '') {
+        fs.readFile(this.fileName, 'utf-8', (err, data) => {
           if (err) {
             this.$message.error('读取格式文件失败')
           } else {
             this.$message({
-              message: '正在使用' + this.fillFile,
+              message: '正在使用' + this.fileName,
               type: 'sucess'
             })
             this.items = JSON.parse(data)

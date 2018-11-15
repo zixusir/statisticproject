@@ -8,7 +8,7 @@
       display: flex;
       align-items: center;
       align-content: center;">
-      <div style="background-color: green; width: 300px; height: 400px; margin: auto">
+      <div style="width: 300px; height: 400px; margin: auto">
         <p style="font-size: 25px">选择你的操作</p>
         <router-link :to="{name: 'editpage'}">新建一个统计</router-link>
         <p style="font-size: 25px">或者</p>
@@ -19,10 +19,13 @@
               <router-link :to="{name: 'editpage', params: {datafile: item}}">编辑</router-link>
             </td>
             <td>
-              <router-link :to="{name: 'fillpage', params: {file: item}}">统计</router-link>
+              <router-link :to="{name: 'fillpage', params: {datafile: item}}">统计</router-link>
             </td>
             <td>
-              <router-link :to="{name: 'sheetpage', params: {file: item}}">汇总</router-link>
+              <router-link :to="{name: 'sheetpage', params: {datafile: item}}">汇总</router-link>
+            </td>
+            <td>
+              <div v-on:click="deletefile(item)">删除</div>
             </td>
           </tr>
         </table>
@@ -50,6 +53,17 @@ export default {
       // console.log(d)
       this.staItems = d
     })
+  },
+  methods: {
+    deletefile (item) {
+      console.log('渲染进程--点击删除')
+      let ipc = Electron.ipcRenderer
+      ipc.send('homepage-delete', item)
+      ipc.on('homepage-deleteback', (event, data) => {
+        // console.log(data)
+        this.staItems = data
+      })
+    }
   }
 }
 </script>

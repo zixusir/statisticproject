@@ -4,7 +4,7 @@ import Fs from 'fs'
 
 let dbs = []
 let sta
-let dataFilePath = PATH.join(__static, 'dbs')
+let dataFilePath = PATH.join(__static, '/dbs')
 /*
 * skanDatabase() 程序开始后扫描数据库文件
 */
@@ -148,6 +148,36 @@ let addSta = function (name, staContent) {
     })
   })
 }
+// 更新一条sta记录
+let updateSta = function (name, newContent) {
+  let newData = {
+    name: name,
+    staContent: newContent
+  }
+  return new Promise((resolve, reject) => {
+    sta.update({name: name}, newData, {}, (err, numReplaced) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(numReplaced)
+      }
+    })
+  })
+}
+
+let deleteSta = function (name) {
+  return new Promise((resolve, reject) => {
+    sta.remove({name: name}, {}, () => {
+      sta.find({}, (err, content) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(content)
+        }
+      })
+    })
+  })
+}
 
 export default {
   init,
@@ -159,5 +189,7 @@ export default {
   findCollection,
   findSta,
   findStaByName,
-  addSta
+  addSta,
+  deleteSta,
+  updateSta
 }

@@ -200,6 +200,12 @@ ipc.on('homepage-findsta', e => {
     }
   )
 })
+ipc.on('homepage-delete', (event, file) => {
+  console.log(`main process get delete order now database will delete ${file}`)
+  DataBase.deleteSta(file).then((resolveArg) => {
+    event.sender.send('homepage-deleteback', resolveArg)
+  })
+})
 
 ipc.on('open-file-dialog', (e) => {
   console.log('start choose')
@@ -256,6 +262,11 @@ ipc.on('editpage-newdatabase', (e, arg, staContent) => {
     () => {
       e.sender.send('editpage-newdbback', 0)
     })
+})
+ipc.on('editpage-updatedatabase', (e, arg, staContent) => {
+  DataBase.updateSta(arg, staContent).then((resolveMsg) => {
+    e.sender.send('editpage-updateback', resolveMsg)
+  })
 })
 
 /**

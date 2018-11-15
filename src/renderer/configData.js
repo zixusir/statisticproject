@@ -12,6 +12,8 @@ let setNetFile = function (newFile) {
 
 let setCurrentFile = function (file) {
   state.currentFile = file
+  console.log(`current state:`)
+  console.log(state)
 }
 export default {
   state,

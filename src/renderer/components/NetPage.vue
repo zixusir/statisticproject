@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import GlobalData from '@/components/GlobalData'
+import GlobalData from '@/configData'
 import Electron from 'electron'
 import Fs from 'fs'
 export default {
