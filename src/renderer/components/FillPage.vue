@@ -10,7 +10,7 @@
         <el-col :span="4" class="align-center">当前:{{this.fileName}}</el-col>
         <el-col :span="12"><p style="font-size: 20px; padding: 0 20px;" class="align-center">修改统计项目</p></el-col>
         <el-col :span="6">
-          <i class="el-icon-check" v-on:click="formSubmit()" style="font-size: 15pt; float: right;">
+          <i class="el-icon-check" v-on:click="openSubmitDialog()" style="font-size: 15pt; float: right;">
             <div style="font-size: 7pt;">保存</div>
           </i>
         </el-col>
@@ -190,6 +190,29 @@
         </span>
       </el-dialog>
 
+      <el-dialog
+        title="提交预览"
+        :visible.sync="submitDialog"
+        :show-close=false
+        :close-on-press-escape=false
+        width="500px">
+        <span>
+          <el-input placeholder="请输入区分标识（比如用户名，id，证件号码）" v-model="submitKey">
+            <template slot="prepend">区分标识</template>
+          </el-input>
+          <div style="overflow-y: scroll; height: 300px; padding-top: 5px; padding-bottom: 5px;">
+            <table style="width: 100%;">
+              <tr v-for="item in items" :key="item.id">
+                <td>{{item.itemName}}</td>
+                <td>{{item.value}}</td>
+              </tr>
+            </table> 
+          </div>
+          <el-button type="primary" v-on:click="formSubmit()">确定提交</el-button>
+        </span>
+
+      </el-dialog>
+
     </el-main>
   </el-container>
 </template>
@@ -207,6 +230,8 @@ export default {
       items: [],
       staItems: [],
       fileChooseDialog: false,
+      submitDialog: false,
+      submitKey: '',
       fileName: ''
     }
   },
@@ -263,9 +288,10 @@ export default {
         })
       })
     },
+    openSubmitDialog () {
+      this.submitDialog = true
+    },
     formSubmit () {
-      console.log('提交')
-      console.log(this.items)
       let ipc = Electron.ipcRenderer
       let saveItems = []
       this.items.forEach(element => {
@@ -275,7 +301,9 @@ export default {
           value: element.value
         })
       })
-      ipc.send('fillpage-insertdata', this.fileName, saveItems)
+      console.log('fillpage提交')
+      console.log(saveItems)
+      ipc.send('fillpage-insertdata', this.fileName, this.submitKey, saveItems)
     },
     /**
      * chooseFillFile() 选择一个填写文件
