@@ -203,7 +203,13 @@ ipc.on('homepage-findsta', e => {
 ipc.on('homepage-delete', (event, file) => {
   console.log(`main process get delete order now database will delete ${file}`)
   DataBase.deleteSta(file).then((resolveArg) => {
-    event.sender.send('homepage-deleteback', resolveArg)
+    if (resolveArg.length && resolveArg.length > 0) {
+      let staNames = []
+      resolveArg.forEach(each => {
+        staNames.push(each.name)
+      })
+      event.sender.send('homepage-deleteback', staNames)
+    }
   })
 })
 
@@ -289,13 +295,19 @@ ipc.on('fillpage-choosefillfile', (e) => {
   })
 })
 
-ipc.on('fillpage-insertdata', (e, arg1, arg2) => {
+ipc.on('fillpage-insertdata', (e, arg1, arg2, arg3) => {
   console.log(arg1)
   console.log(arg2)
+  console.log(arg3)
   let data = {
-    content: arg2
+    submitKey: arg2,
+    content: arg3
   }
-  DataBase.insert(arg1, data)
+  DataBase.insert(arg1, data).then(resolveMsg => {
+    console.log('main progress read back state:')
+    console.log(resolveMsg)
+    e.sender.send('fillpage-insertback', resolveMsg)
+  })
 })
 
 /**

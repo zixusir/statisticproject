@@ -50,7 +50,7 @@ export default {
     let ipc = Electron.ipcRenderer
     ipc.send('homepage-findsta')
     ipc.on('homepage-getsta', (e, d) => {
-      // console.log(d)
+      console.log(d)
       this.staItems = d
     })
   },
@@ -60,7 +60,7 @@ export default {
       let ipc = Electron.ipcRenderer
       ipc.send('homepage-delete', item)
       ipc.on('homepage-deleteback', (event, data) => {
-        // console.log(data)
+        console.log(data)
         this.staItems = data
       })
     }

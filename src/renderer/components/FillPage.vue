@@ -301,9 +301,19 @@ export default {
           value: element.value
         })
       })
-      console.log('fillpage提交')
-      console.log(saveItems)
       ipc.send('fillpage-insertdata', this.fileName, this.submitKey, saveItems)
+      ipc.on('fillpage-insertback', (event, data) => {
+        console.log('fillpage新提交')
+        console.log(data)
+        if (data === 'update') {
+          this.$message(`成功更新数据库${this.fileName}`)
+        } else if (data === 'insert') {
+          this.$message(`成功插入数据库${this.fileName}`)
+        } else {
+          this.$message.error('写入数据库错误')
+        }
+        this.submitDialog = false
+      })
     },
     /**
      * chooseFillFile() 选择一个填写文件
@@ -339,7 +349,7 @@ export default {
      * checkInput() 验证表单输入
      */
     checkInput (item) {
-      console.log('onChange>>>>>')
+      console.log('>>>>onChange>>>>>')
       let newItem = null
       let warn = []
       switch (item.type) {

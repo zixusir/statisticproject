@@ -55,14 +55,29 @@ let init = function (str) {
  * 向指定数据库插入一项数据
  */
 let insert = function (databaseName, data) {
-  console.log('insert a data')
-  for (let i = 0; i < dbs.length; i++) {
-    if (dbs[i].name === databaseName) {
-      dbs[i].insert(data)
-      break
-    }
-    if (i === dbs.length - 1) console.log('数据插入错误')
-  }
+  let db = new DataStore({
+    filename: PATH.join(dataFilePath, databaseName + '.db'),
+    autoload: true
+  })
+  return new Promise((resolve, reject) => {
+    let submitKey = data.submitKey
+    db.find({submitKey: submitKey}, (err1, content) => {
+      if (err1) {
+        reject(err1)
+      }
+      if (content.length > 0) {
+        db.update({submitKey: submitKey}, data, {}, () => {
+          let str = 'update'
+          resolve(str)
+        })
+      } else {
+        db.insert(data, () => {
+          let str = 'insert'
+          resolve(str)
+        })
+      }
+    })
+  })
 }
 /**
  * 删除数据库中的一条记录
