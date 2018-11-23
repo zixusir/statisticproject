@@ -1,13 +1,20 @@
 <template>
   <el-container>
-    <el-header>
+    <el-header class="header">
       <el-row>
-        <el-col :span="4" class="align-center">当前</el-col>
-        <el-col :span="16">
+        <el-col :span="2">
+          <i class="el-icon-news" v-on:click="chooseSheetFile()" style="font-size: 15pt">
+            <div style="font-size: 7pt;">选择</div>
+          </i>
+        </el-col>
+        <el-col :span="4" class="align-center">当前:{{this.filename}}</el-col>
+        <el-col :span="12">
           <p style="font-size: 20px; padding: 0 20px;" class="align-center">制表导出</p>
         </el-col>
-        <el-col :span="4">
-          <i class="el-icon-check" style="float: right; padding: 20px;" v-on:click="formSubmit()"></i>
+        <el-col :span="6">
+          <i class="icon iconfont icon-icon_baocun" v-on:click="outputFile()" style="font-size: 15pt; float: right;">
+            <div style="font-size: 7pt;">导出</div>
+          </i>
         </el-col>
       </el-row>
     </el-header>
@@ -26,14 +33,28 @@
 
       <!-- dialog -->
       <el-dialog
-        title="选择文件"
+        title="选择统计项目"
         :visible.sync="fileChooseDialog"
         :show-close=false
         :close-on-press-escape=false
-        width="50%">
-        <span>选择你的数据文件</span>
-        <el-button type="primary" v-on:click="chooseSheetFile()">选择</el-button>
+        width="500px">
+        <span>
+          <div style="display: flex; justify-content: center;">
+            <table style="width: 100%; padding-left: 15px; padding-right: 15px;">
+              <tr v-for="item in staItems" :key="item.id" style="width: 100%">
+                <td>{{item}}</td>
+                <td>
+                  <div v-on:click="setSheetPageView(item)">
+                    <span>选择</span>
+                  </div>
+                  <!-- <router-link :to="{name: 'editpage', params: {datafile: item}}">编辑</router-link> -->
+                </td>
+              </tr>
+            </table>
+          </div>
+        </span>
       </el-dialog>
+
     </el-main>
   </el-container>
 </template>
@@ -41,12 +62,10 @@
 <script>
 import Electron from 'electron'
 import GlobalData from '@/configData'
-// import Vue from 'vue'
-// import Path from 'path'
-// import Fs from 'fs'
 export default {
   data () {
     return {
+      staItems: [],
       filename: '',
       allItems: [],
       tableHead: [],
@@ -54,23 +73,59 @@ export default {
     }
   },
   created: function () {
-    if (GlobalData.state.newSheet && GlobalData.state.sheetFile === '') {
-      this.fileChooseDialog = true
+    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
+      this.filename = this.$route.params.datafile
+      GlobalData.setCurrentFile(this.filename)
+      let ipc = Electron.ipcRenderer
+      ipc.send('sheetpage-readitems', this.filename)
+      ipc.on('sheetpage-getitems', (event, data) => {
+        console.log(data)
+        this.allItems = []
+        this.tableHead = []
+        let tableHOrigin = data[0].content
+        if (tableHOrigin.length > 0) {
+          tableHOrigin.forEach(each => {
+            this.tableHead.push(each.itemName)
+          })
+        }
+        this.allItems = data
+      })
     }
   },
   methods: {
     chooseSheetFile () {
+      this.fileChooseDialog = true
       let ipc = Electron.ipcRenderer
-      ipc.send('sheetpage-readitems')
-      ipc.on('sheetpage-getitems', (event, data) => {
-        // console.log(data)
-        this.fileChooseDialog = false
-        this.allItems = data
-        // 更新表头
-        let length = this.allItems[0].content.length
-        for (let i = 0; i < length; i++) {
-          this.tableHead.push(this.allItems[0].content[i].itemName)
+      // 借用homepage的api
+      ipc.send('homepage-findsta')
+      ipc.on('homepage-getsta', (e, d) => {
+        // console.log(d)
+        this.staItems = d
+      })
+    },
+    setSheetPageView (item) {
+      this.filename = item
+      GlobalData.setCurrentFile(item)
+      let ipc = Electron.ipcRenderer
+      ipc.send('sheetpage-findcontentbyname', item)
+      ipc.on('sheetpage-getcontentbyname', (event, data) => {
+        this.allItems = []
+        this.tableHead = []
+        let tableHOrigin = data[0].content
+        if (tableHOrigin.length > 0) {
+          tableHOrigin.forEach(each => {
+            this.tableHead.push(each.itemName)
+          })
         }
+        this.allItems = data
+      })
+      this.fileChooseDialog = false
+    },
+    outputFile () {
+      let ipc = Electron.ipcRenderer
+      ipc.send('sheetpage-outputdialog', this.allItems)
+      ipc.on('sheetpage-outputback', (e, data) => {
+        this.$message(`导出完成，excel文件位置：${data}`)
       })
     }
   }

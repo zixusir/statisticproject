@@ -3,6 +3,7 @@
 import { app, BrowserWindow, ipcMain, dialog, shell, Menu } from 'electron'
 import DataBase from '../database/index'
 import Server from '../server/index'
+import XLSX from 'xlsx'
 // import Path from 'path'
 // import Path from 'path'
 /**
@@ -313,27 +314,75 @@ ipc.on('fillpage-insertdata', (e, arg1, arg2, arg3) => {
 /**
  * 配合sheetpage的 主进程
  */
-ipc.on('sheetpage-readitems', (e) => {
-  let appPath = app.getAppPath()
-  fileDialog.showOpenDialog({
-    title: '选择文件',
-    properties: ['openFile'],
-    defaultPath: appPath,
-    buttonLabel: '选择',
-    filters: [
-      {name: 'sta文件', extensions: ['sta']}
-    ]
-  }, (file) => {
-    if (file) {
-      let fileArr = file[0].split('\\')
-      let filename = fileArr[fileArr.length - 1].split('.')[0]
-      DataBase.findCollection(filename).then(
-        ret => e.sender.send('sheetpage-getitems', ret)
-      )
-      console.log('find data')
-    }
+ipc.on('sheetpage-readitems', (e, datafile) => {
+  DataBase.findCollection(datafile).then(resolveMsg => {
+    e.sender.send('sheetpage-getitems', resolveMsg)
   })
 })
+ipc.on('sheetpage-findcontentbyname', (e, datafile) => {
+  DataBase.findCollection(datafile).then(resolveMsg => {
+    e.sender.send('sheetpage-getcontentbyname', resolveMsg)
+  })
+})
+ipc.on('sheetpage-outputdialog', (e, data) => {
+  let appPath = app.getAppPath()
+  fileDialog.showOpenDialog({
+    title: '选择文件保存位置',
+    properties: ['openDirectory'],
+    defaultPath: appPath,
+    buttonLabel: '选择'
+  }, (filepath) => {
+    xlsxWrite(filepath, data)
+    e.sender.send('sheetpage-outputback', filepath)
+  })
+})
+function xlsxWrite (path, data) {
+  console.log(`file write into ${path}`)
+  let header
+  let content
+  if (data instanceof Array && data[0].content instanceof Array) {
+    let temp = []
+    data[0].content.forEach(each => {
+      temp.push(each.itemName)
+    })
+    header = temp.map((v, i) => Object.assign({}, {v: v, position: String.fromCharCode(65 + i) + 1}))
+      .reduce((prev, next) => Object.assign({}, prev, {[next.position]: {v: next.v}}), {})
+
+    let temp3 = []
+    let temp1 = []
+    data.map((v, j) => {
+      v.content.forEach(each => {
+        temp1.push(each.value)
+      })
+      console.log(temp1)
+      let temp2
+      temp2 = temp1.map((v, i) => Object.assign({}, {v: v, position: String.fromCharCode(65 + i) + (j + 2)}))
+        .reduce((prev, next) => Object.assign({}, prev, {[next.position]: {v: next.v}}), {})
+      temp3.push(temp2)
+      temp1 = []
+    })
+    content = temp3.reduce((prev, next) => Object.assign({}, prev, next), {})
+  }
+
+  // 合并 header 和 content
+  let output = Object.assign({}, header, content)
+  // 获取所有单元格的位置
+  let outputPos = Object.keys(output)
+  // 计算出范围
+  let ref = outputPos[0] + ':' + outputPos[outputPos.length - 1]
+  // 构建 workbook 对象
+  let wb = {
+    SheetNames: ['mySheet'],
+    Sheets: {
+      'mySheet': Object.assign({}, output, { '!ref': ref })
+    }
+  }
+  // 导出 Excel
+  XLSX.writeFile(wb, 'output.xlsx')
+  return new Promise((resolve, reject) => {
+
+  })
+}
 
 /**
  * 配合netpage的主进程
