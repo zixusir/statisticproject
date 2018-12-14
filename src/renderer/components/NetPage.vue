@@ -1,19 +1,22 @@
 <template>
   <el-container>
-    <el-header>
+    <el-header class="header">
       <el-row>
-        <el-col :span="4" class="align-center">当前</el-col>
+        <el-col :span="4">
+          <i class="el-icon-news" v-on:click="chooseNetFile()" style="font-size: 15pt">
+            <div style="font-size: 7pt;">选择</div>
+          </i>
+        </el-col>
         <el-col :span="16">
           <p style="font-size: 20px; padding: 0 20px;" class="align-center">通过你的网络发起统计</p>
         </el-col>
         <el-col :span="4">
-          <i class="el-icon-check" style="float: right; padding: 20px;" v-on:click="formSubmit()"></i>
         </el-col>
       </el-row>
     </el-header>
     <el-main>
       <div>
-        <img src="../assets/server.png" style="width:50%">
+        <img src="../assets/server.png" style="height: 300px; width: 300px">
         <p>当前服务器文件配置{{this.netFile}}</p>
         <p>这项功能将会在你的本地开启一个http服务器，通过这个简单的服务器，你可以在你的本地网络中发起统计</p>
         <el-switch
@@ -34,6 +37,34 @@
         <span>选择你的数据文件</span>
         <el-button type="primary" v-on:click="chooseNetFile()">选择</el-button>
       </el-dialog>
+
+      <el-dialog
+        title="选择统计项目"
+        :visible.sync="fileChooseDialog"
+        :show-close=false
+        :close-on-press-escape=false
+        width="500px">
+        <span>
+          <div style="display: flex; justify-content: center;">
+            <table style="width: 100%; padding-left: 15px; padding-right: 15px;">
+              <tr v-for="item in staItems" :key="item.id" style="width: 100%">
+                <td>{{item}}</td>
+                <td>
+                  <div v-on:click="choose(item)">
+                    <span>选择</span>
+                  </div>
+                  <!-- <router-link :to="{name: 'editpage', params: {datafile: item}}">编辑</router-link> -->
+                </td>
+                <td>
+                  <div v-on:click="addInto(item)">
+                    <span>添加</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </span>
+      </el-dialog>
     </el-main>
   </el-container>
 </template>
@@ -41,18 +72,21 @@
 <script>
 import GlobalData from '@/configData'
 import Electron from 'electron'
-import Fs from 'fs'
+// import Fs from 'fs'
 export default {
   data () {
     return {
+      staItems: [],
       fileChooseDialog: false,
       netFile: '',
       serverState: false
     }
   },
   created: function () {
-    if (GlobalData.state.netFile === '' && GlobalData.state.newNet) {
-      this.fileChooseDialog = true
+    if (GlobalData.state.netState) {
+      this.serverState = true
+    } else {
+      this.chooseNetFile()
     }
   },
   watch: {
@@ -65,26 +99,31 @@ export default {
      * 选择数据文件
      */
     chooseNetFile () {
+      this.fileChooseDialog = true
       let ipc = Electron.ipcRenderer
-      ipc.send('netpage-choosenetfile')
-      ipc.on('netpage-getnetfile', (event, file) => {
-        this.netFile = file[0]
-        let netFileArr = this.netFile.split('\\')
-        GlobalData.setNetFile(netFileArr[netFileArr.length - 1].split('.')[0])
-        this.fileChooseDialog = false
-        if (GlobalData.state.netFile !== '') {
-          Fs.readFile(this.netFile, 'utf-8', (err, data) => {
-            if (err) {
-              console.log('fail to get tht sta file')
-            } else {
-              GlobalData.state.netData = JSON.parse(data)
-              console.log(GlobalData.state.netData)
-            }
-          })
-        } else {
-          console.log('fail to set the sta file')
-        }
+      ipc.send('homepage-findsta')
+      ipc.on('homepage-getsta', (e, d) => {
+        console.log(d)
+        this.staItems = d
       })
+    },
+    /**
+     * 选择一个统计数据
+     */
+    choose (item) {
+      console.log(item)
+      GlobalData.setNetData(item)
+      this.netFile = GlobalData.state.netData
+    },
+    /**
+     * 添加一个选择
+     */
+    addInto (item) {
+      console.log(item)
+      if (!GlobalData.state.netData.includes(item)) {
+        GlobalData.addNetData(item)
+        this.netFile = GlobalData.state.netData
+      }
     },
     /**
      * 更改服务器状态
@@ -92,7 +131,7 @@ export default {
     toogleServer () {
       let ipc = Electron.ipcRenderer
       console.log('改变状态')
-      if (GlobalData.state.newNet && GlobalData.state.netFile === '') {
+      if (GlobalData.state.newState && GlobalData.state.netData) {
         this.$message.error('还没有选择数据文件')
         this.serverState = false
         this.fileChooseDialog = true

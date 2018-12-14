@@ -1,8 +1,8 @@
 let state = {
   currentFile: '',
   netFile: '',
-  newNet: true,
-  netData: ['test']
+  netState: false,
+  netData: []
 }
 
 let setNetFile = function (newFile) {
@@ -15,8 +15,17 @@ let setCurrentFile = function (file) {
   console.log(`current state:`)
   console.log(state)
 }
+let setNetData = function (datafile) {
+  state.netData = []
+  state.netData[0] = datafile
+}
+let addNetData = function (datafile) {
+  state.netData.push(datafile)
+}
 export default {
   state,
   setNetFile,
-  setCurrentFile
+  setCurrentFile,
+  setNetData,
+  addNetData
 }

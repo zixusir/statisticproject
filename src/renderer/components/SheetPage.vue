@@ -123,7 +123,7 @@ export default {
     },
     outputFile () {
       let ipc = Electron.ipcRenderer
-      ipc.send('sheetpage-outputdialog', this.allItems)
+      ipc.send('sheetpage-outputdialog', this.allItems, this.filename)
       ipc.on('sheetpage-outputback', (e, data) => {
         this.$message(`导出完成，excel文件位置：${data}`)
       })

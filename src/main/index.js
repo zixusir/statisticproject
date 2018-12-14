@@ -324,7 +324,7 @@ ipc.on('sheetpage-findcontentbyname', (e, datafile) => {
     e.sender.send('sheetpage-getcontentbyname', resolveMsg)
   })
 })
-ipc.on('sheetpage-outputdialog', (e, data) => {
+ipc.on('sheetpage-outputdialog', (e, data, name) => {
   let appPath = app.getAppPath()
   fileDialog.showOpenDialog({
     title: '选择文件保存位置',
@@ -332,11 +332,11 @@ ipc.on('sheetpage-outputdialog', (e, data) => {
     defaultPath: appPath,
     buttonLabel: '选择'
   }, (filepath) => {
-    xlsxWrite(filepath, data)
+    xlsxWrite(filepath, data, name)
     e.sender.send('sheetpage-outputback', filepath)
   })
 })
-function xlsxWrite (path, data) {
+function xlsxWrite (path, data, name) {
   console.log(`file write into ${path}`)
   let header
   let content
@@ -378,10 +378,7 @@ function xlsxWrite (path, data) {
     }
   }
   // 导出 Excel
-  XLSX.writeFile(wb, 'output.xlsx')
-  return new Promise((resolve, reject) => {
-
-  })
+  XLSX.writeFile(wb, name + '.xlsx')
 }
 
 /**

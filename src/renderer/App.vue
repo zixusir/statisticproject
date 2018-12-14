@@ -29,7 +29,7 @@
             <span slot="title">制表导出</span>
           </el-menu-item>
         </router-link>
-        <router-link :to="{name: 'netpage', params: {datafile: Global.state.currentFile}}">
+        <router-link :to="{name: 'netpage'}">
           <el-menu-item index="6">
             <i class="el-icon-upload"></i>
             <span slot="title">发起统计</span>

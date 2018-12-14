@@ -31,7 +31,7 @@ export default new Router({
       component: SheetPage
     },
     {
-      path: '/netpage/:datafile?',
+      path: '/netpage',
       name: 'netpage',
       component: NetPage
     }
