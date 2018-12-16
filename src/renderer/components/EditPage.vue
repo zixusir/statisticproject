@@ -187,7 +187,8 @@ export default {
     langtextConstrait
   },
   created () {
-    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
+    this.ipcEvents()
+    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '*') {
       console.log('正在渲染……')
       console.log(this.$route.params.datafile)
       let staName = this.$route.params.datafile
@@ -199,13 +200,22 @@ export default {
         GlobalData.setCurrentFile(data[0].name)
       })
     } else {
-      // 如果路径上没有指明文件，就新建一个
+      // 如果路径上没有指明文件，就打开选择对话框
       this.items = []
-      this.newFileDialog = true
+      this.fileChooseDialog = true
+      let ipc = Electron.ipcRenderer
+      ipc.send('homepage-findsta')
       console.log('we find nothing')
     }
   },
   methods: {
+    ipcEvents () {
+      let ipc = Electron.ipcRenderer
+      ipc.on('homepage-getsta', (e, d) => {
+        console.log(d)
+        this.staItems = d
+      })
+    },
     addText () {
       console.log('点击事件触发')
       let text = {
@@ -392,10 +402,10 @@ export default {
       let ipc = Electron.ipcRenderer
       // 借用homepage的api
       ipc.send('homepage-findsta')
-      ipc.on('homepage-getsta', (e, d) => {
-        console.log(d)
-        this.staItems = d
-      })
+      // ipc.on('homepage-getsta', (e, d) => {
+      //   console.log(d)
+      //   this.staItems = d
+      // })
     },
     /*
     * chooseFormat()更改格式文件

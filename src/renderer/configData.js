@@ -1,5 +1,5 @@
 let state = {
-  currentFile: '',
+  currentFile: '*',
   netFile: '',
   netState: false,
   netData: []
@@ -22,10 +22,14 @@ let setNetData = function (datafile) {
 let addNetData = function (datafile) {
   state.netData.push(datafile)
 }
+let clearNetData = function () {
+  state.netData = []
+}
 export default {
   state,
   setNetFile,
   setCurrentFile,
   setNetData,
-  addNetData
+  addNetData,
+  clearNetData
 }

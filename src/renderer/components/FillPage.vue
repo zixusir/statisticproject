@@ -236,7 +236,8 @@ export default {
     }
   },
   created: function () {
-    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
+    this.ipcEvents()
+    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '*') {
       console.log('fillpage正在渲染...')
       console.log(this.$route.params.datafile)
       this.fileName = this.$route.params.datafile
@@ -245,13 +246,41 @@ export default {
       // 调用editpage接口获取sta内容
       let ipc = Electron.ipcRenderer
       ipc.send('editpage-findsta', this.fileName)
+      // ipc.on('editpage-getsta', (event, data) => {
+      //   // console.log(1)
+      //   this.items = data[0].staContent
+      // })
+    } else {
+      this.fileChooseDialog = true
+      this.items = []
+      let ipc = Electron.ipcRenderer
+      ipc.send('homepage-findsta')
+    }
+  },
+  methods: {
+    ipcEvents () {
+      let ipc = Electron.ipcRenderer
       ipc.on('editpage-getsta', (event, data) => {
         // console.log(1)
         this.items = data[0].staContent
       })
-    }
-  },
-  methods: {
+      ipc.on('fillpage-insertback', (event, data) => {
+        console.log('fillpage新提交')
+        console.log(data)
+        if (data === 'update') {
+          this.$message(`成功更新数据库${this.fileName}`)
+        } else if (data === 'insert') {
+          this.$message(`成功插入数据库${this.fileName}`)
+        } else {
+          this.$message.error('写入数据库错误')
+        }
+        this.submitDialog = false
+      })
+      ipc.on('homepage-getsta', (e, d) => {
+        // console.log(d)
+        this.staItems = d
+      })
+    },
     notice (type, str) {
       const h = this.$createElement
       switch (type) {
@@ -302,18 +331,18 @@ export default {
         })
       })
       ipc.send('fillpage-insertdata', this.fileName, this.submitKey, saveItems)
-      ipc.on('fillpage-insertback', (event, data) => {
-        console.log('fillpage新提交')
-        console.log(data)
-        if (data === 'update') {
-          this.$message(`成功更新数据库${this.fileName}`)
-        } else if (data === 'insert') {
-          this.$message(`成功插入数据库${this.fileName}`)
-        } else {
-          this.$message.error('写入数据库错误')
-        }
-        this.submitDialog = false
-      })
+      // ipc.on('fillpage-insertback', (event, data) => {
+      //   console.log('fillpage新提交')
+      //   console.log(data)
+      //   if (data === 'update') {
+      //     this.$message(`成功更新数据库${this.fileName}`)
+      //   } else if (data === 'insert') {
+      //     this.$message(`成功插入数据库${this.fileName}`)
+      //   } else {
+      //     this.$message.error('写入数据库错误')
+      //   }
+      //   this.submitDialog = false
+      // })
     },
     /**
      * chooseFillFile() 选择一个填写文件
@@ -323,10 +352,10 @@ export default {
       let ipc = Electron.ipcRenderer
       // 借用homepage的api
       ipc.send('homepage-findsta')
-      ipc.on('homepage-getsta', (e, d) => {
-        // console.log(d)
-        this.staItems = d
-      })
+      // ipc.on('homepage-getsta', (e, d) => {
+      //   // console.log(d)
+      //   this.staItems = d
+      // })
     },
     /**
      * setFillPageView() 触发视图更改

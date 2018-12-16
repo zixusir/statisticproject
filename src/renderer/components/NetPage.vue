@@ -16,8 +16,11 @@
     </el-header>
     <el-main>
       <div>
-        <img src="../assets/server.png" style="height: 300px; width: 300px">
-        <p>当前服务器文件配置{{this.netFile}}</p>
+        <img src="../assets/server.png" style="height: 300px; width: 300px;">
+        <div style="display: flex; justify-content: center;">当前服务器文件配置{{this.netFile}}
+          <div style="color: red; display: float; padding-left: 5px;" v-on:click="clear()">清空</div>
+        </div>
+        
         <p>这项功能将会在你的本地开启一个http服务器，通过这个简单的服务器，你可以在你的本地网络中发起统计</p>
         <el-switch
           v-model="serverState"
@@ -25,6 +28,7 @@
           inactive-text="关闭"
           style="display:block; text-align:center">
         </el-switch>
+        <div>请通过下面的地址访问本服务<a>http://{{this.ipadress}}:5050</a></div>
       </div>
 
       <!-- dialog -->
@@ -41,7 +45,7 @@
       <el-dialog
         title="选择统计项目"
         :visible.sync="fileChooseDialog"
-        :show-close=false
+        :show-close=true
         :close-on-press-escape=false
         width="500px">
         <span>
@@ -53,7 +57,6 @@
                   <div v-on:click="choose(item)">
                     <span>选择</span>
                   </div>
-                  <!-- <router-link :to="{name: 'editpage', params: {datafile: item}}">编辑</router-link> -->
                 </td>
                 <td>
                   <div v-on:click="addInto(item)">
@@ -79,14 +82,17 @@ export default {
       staItems: [],
       fileChooseDialog: false,
       netFile: '',
-      serverState: false
+      serverState: false,
+      ipadress: ''
     }
   },
   created: function () {
     if (GlobalData.state.netState) {
       this.serverState = true
+      this.netFile = GlobalData.state.netData
     } else {
       this.chooseNetFile()
+      GlobalData.state.netData = []
     }
   },
   watch: {
@@ -114,6 +120,7 @@ export default {
       console.log(item)
       GlobalData.setNetData(item)
       this.netFile = GlobalData.state.netData
+      this.fileChooseDialog = false
     },
     /**
      * 添加一个选择
@@ -126,18 +133,30 @@ export default {
       }
     },
     /**
+     * 清空选择
+     */
+    clear () {
+      GlobalData.clearNetData()
+      this.netFile = GlobalData.state.netData
+    },
+    /**
      * 更改服务器状态
      */
     toogleServer () {
       let ipc = Electron.ipcRenderer
       console.log('改变状态')
-      if (GlobalData.state.newState && GlobalData.state.netData) {
-        this.$message.error('还没有选择数据文件')
+      console.log(GlobalData.state.netData)
+      if (GlobalData.state.netData.length < 1) {
+        this.$message.error('还没有添加统计文件，点击左上角的添加按钮进行添加')
         this.serverState = false
         this.fileChooseDialog = true
       } else {
         if (this.serverState) {
-          ipc.send('netpage-startserver', GlobalData.state.netData, GlobalData.state.netFile)
+          ipc.send('netpage-startserver', GlobalData.state.netData)
+          ipc.on('netpage-startback', (e, data) => {
+            this.ipadress = data
+          })
+          GlobalData.state.netState = true
         } else {
           ipc.send('netpage-stopserver')
         }

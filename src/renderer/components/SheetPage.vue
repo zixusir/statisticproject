@@ -73,7 +73,8 @@ export default {
     }
   },
   created: function () {
-    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '') {
+    this.ipcEvents()
+    if (this.$route.params && this.$route.params.datafile && this.$route.params.datafile !== '*') {
       this.filename = this.$route.params.datafile
       GlobalData.setCurrentFile(this.filename)
       let ipc = Electron.ipcRenderer
@@ -90,24 +91,20 @@ export default {
         }
         this.allItems = data
       })
+    } else {
+      this.fileChooseDialog = true
+      this.allItems = []
+      let ipc = Electron.ipcRenderer
+      ipc.send('homepage-findsta')
     }
   },
   methods: {
-    chooseSheetFile () {
-      this.fileChooseDialog = true
+    ipcEvents () {
       let ipc = Electron.ipcRenderer
-      // 借用homepage的api
-      ipc.send('homepage-findsta')
       ipc.on('homepage-getsta', (e, d) => {
         // console.log(d)
         this.staItems = d
       })
-    },
-    setSheetPageView (item) {
-      this.filename = item
-      GlobalData.setCurrentFile(item)
-      let ipc = Electron.ipcRenderer
-      ipc.send('sheetpage-findcontentbyname', item)
       ipc.on('sheetpage-getcontentbyname', (event, data) => {
         this.allItems = []
         this.tableHead = []
@@ -119,14 +116,44 @@ export default {
         }
         this.allItems = data
       })
+      ipc.on('sheetpage-outputback', (e, data) => {
+        this.$message(`导出完成，excel文件位置：${data}`)
+      })
+    },
+    chooseSheetFile () {
+      this.fileChooseDialog = true
+      let ipc = Electron.ipcRenderer
+      // 借用homepage的api
+      ipc.send('homepage-findsta')
+      // ipc.on('homepage-getsta', (e, d) => {
+      //   // console.log(d)
+      //   this.staItems = d
+      // })
+    },
+    setSheetPageView (item) {
+      this.filename = item
+      GlobalData.setCurrentFile(item)
+      let ipc = Electron.ipcRenderer
+      ipc.send('sheetpage-findcontentbyname', item)
+      // ipc.on('sheetpage-getcontentbyname', (event, data) => {
+      //   this.allItems = []
+      //   this.tableHead = []
+      //   let tableHOrigin = data[0].content
+      //   if (tableHOrigin.length > 0) {
+      //     tableHOrigin.forEach(each => {
+      //       this.tableHead.push(each.itemName)
+      //     })
+      //   }
+      //   this.allItems = data
+      // })
       this.fileChooseDialog = false
     },
     outputFile () {
       let ipc = Electron.ipcRenderer
       ipc.send('sheetpage-outputdialog', this.allItems, this.filename)
-      ipc.on('sheetpage-outputback', (e, data) => {
-        this.$message(`导出完成，excel文件位置：${data}`)
-      })
+      // ipc.on('sheetpage-outputback', (e, data) => {
+      //   this.$message(`导出完成，excel文件位置：${data}`)
+      // })
     }
   }
 }

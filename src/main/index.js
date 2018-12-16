@@ -4,6 +4,7 @@ import { app, BrowserWindow, ipcMain, dialog, shell, Menu } from 'electron'
 import DataBase from '../database/index'
 import Server from '../server/index'
 import XLSX from 'xlsx'
+import OS from 'os'
 // import Path from 'path'
 // import Path from 'path'
 /**
@@ -312,7 +313,7 @@ ipc.on('fillpage-insertdata', (e, arg1, arg2, arg3) => {
 })
 
 /**
- * 配合sheetpage的 主进程
+ * 配合sheetpage的主进程
  */
 ipc.on('sheetpage-readitems', (e, datafile) => {
   DataBase.findCollection(datafile).then(resolveMsg => {
@@ -398,8 +399,17 @@ ipc.on('netpage-choosenetfile', (e) => {
     e.sender.send('netpage-getnetfile', file)
   })
 })
-ipc.on('netpage-startserver', (e, arg1, arg2) => {
-  Server.startServer(arg1, arg2)
+ipc.on('netpage-startserver', (e, arg1) => {
+  Server.startServer(arg1)
+  let localhost = ''
+  try {
+    var network = OS.networkInterfaces()
+    localhost = network[Object.keys(network)[0]][1].address
+  } catch (e) {
+    localhost = 'localhost'
+  }
+  e.sender.send('netpage-startback', localhost)
+  // console.log(localhost)
 })
 ipc.on('netpage-stopserver', (e) => {
   Server.stopServer()

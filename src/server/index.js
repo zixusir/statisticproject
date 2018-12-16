@@ -5,13 +5,13 @@ import BodyParser from 'koa-bodyparser'
 import Router from 'koa-router'
 import Cors from 'koa2-cors' // during development allow cors
 import Database from '../database/index'
-// import GlobalData from '../renderer/components/GlobalData'
 
 const app = new Koa()
 let serverRouter = new Router()
-let server = null
-let data = null
-let dataFile = null
+let server
+let data
+let dataFile
+// let netSta = null
 app.use(Cors())
 
 // 静态文件服务
@@ -36,22 +36,32 @@ let stadata = async function (ctx) {
   console.log(data)
   ctx.response.body = data
 }
+let findsta = async function (ctx) {
+  let ctxparams = ctx.params
+  console.log('sever get request')
+  console.log(ctxparams.staname)
+  await Database.findStaByName(ctxparams.staname).then((staContent) => {
+    console.log(staContent)
+    ctx.response.body = staContent
+  })
+}
 serverRouter
   .post('/api/submit', submit)
   .get('/api/stadata', stadata)
+  .get('/api/findsta/:staname', findsta)
 app.use(serverRouter.routes()).use(serverRouter.allowedMethods())
 
-let startServer = function (arg1, arg2) {
+let startServer = function (arg1) {
   server = app.listen(5050)
   data = arg1
-  dataFile = arg2
   console.log('Your server is starting at port 5050')
-  console.log(arg2)
+  console.log(server)
 }
 
 let stopServer = function () {
   server.close()
   console.log('Your server is closed')
+  console.log(server)
 }
 
 export default {
