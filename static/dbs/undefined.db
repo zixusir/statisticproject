@@ -1,0 +1,3 @@
+{"content":[{"constrait":{"lang":"mix","max":20,"min":0},"id":1,"itemName":"文本","type":"text"},{"constrait":{"max":100,"min":1},"id":2,"itemName":"数字","type":"num"},{"constrait":{},"id":3,"itemName":"百分数","type":"percent"}],"_id":"2D3vhXwOUsAYe5Ka"}
+{"content":[{"constrait":{"lang":"mix","max":20,"min":0},"id":1,"itemName":"文本","type":"text"},{"constrait":{"max":100,"min":1},"id":2,"itemName":"数字","type":"num"},{"constrait":{},"id":3,"itemName":"百分数","type":"percent"}],"_id":"NJSDrz0bxkuYlPnC"}
+{"content":[{"constrait":{"lang":"mix","max":20,"min":0},"id":1,"itemName":"文本","type":"text"},{"constrait":{"max":100,"min":1},"id":2,"itemName":"数字","type":"num"},{"constrait":{},"id":3,"itemName":"百分数","type":"percent"}],"_id":"huUO6XpqyOsSfIaQ"}

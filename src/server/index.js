@@ -52,6 +52,9 @@ serverRouter
 app.use(serverRouter.routes()).use(serverRouter.allowedMethods())
 
 let startServer = function (arg1) {
+  if (server) {
+    server.close()
+  }
   server = app.listen(5050)
   data = arg1
   console.log('Your server is starting at port 5050')

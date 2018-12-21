@@ -28,7 +28,7 @@
           inactive-text="关闭"
           style="display:block; text-align:center">
         </el-switch>
-        <div>请通过下面的地址访问本服务<a>http://{{this.ipadress}}:5050</a></div>
+        <div>请通过下面的地址访问本服务<a>http://{{this.ipadress}}:5050/index.html</a></div>
       </div>
 
       <!-- dialog -->
@@ -159,6 +159,8 @@ export default {
           GlobalData.state.netState = true
         } else {
           ipc.send('netpage-stopserver')
+          GlobalData.state.netState = false
+          // this.serverState = false
         }
       }
     }
